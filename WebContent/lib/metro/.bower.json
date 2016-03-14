@@ -28,19 +28,23 @@
     "build/fonts/metro.woff",
     "build/js/metro.js"
   ],
-  "ignore": [],
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "docs",
+    "test"
+  ],
   "dependencies": {
     "jquery": ">= 1.9.1"
   },
-  "version": "3.0.12",
-  "_release": "3.0.12",
+  "version": "3.0.14",
+  "_release": "3.0.14",
   "_resolution": {
     "type": "version",
-    "tag": "3.0.12",
-    "commit": "58df88c79a566212286a00058047c81d2d201f6c"
+    "tag": "3.0.14",
+    "commit": "8a9fabdb7171556c730d9b139bed0f52ed3fab8d"
   },
   "_source": "git://github.com/olton/Metro-UI-CSS.git",
   "_target": "~3.0.12",
-  "_originalSource": "metro",
-  "_direct": true
+  "_originalSource": "metro"
 }

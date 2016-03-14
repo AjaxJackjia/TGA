@@ -1,4 +1,4 @@
-window.METRO_VERSION = '3.0.12';
+window.METRO_VERSION = '3.0.13';
 
 if (window.METRO_AUTO_REINIT === undefined) window.METRO_AUTO_REINIT = true;
 if (window.METRO_LANGUAGE === undefined) window.METRO_LANGUAGE = 'en';
@@ -19,6 +19,16 @@ String.prototype.isUrl = function () {
 String.prototype.isColor = function () {
     "use strict";
     return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(this);
+};
+
+window.secondsToFormattedString = function(time){
+    var hours, minutes, seconds;
+
+    hours = parseInt( time / 3600 ) % 24;
+    minutes = parseInt( time / 60 ) % 60;
+    seconds = time % 60;
+
+    return (hours ? (hours) + ":" : "") + (minutes < 10 ? "0"+minutes : minutes) + ":" + (seconds < 10 ? "0"+seconds : seconds);
 };
 
 Array.prototype.shuffle = function () {
@@ -156,8 +166,8 @@ window.METRO_LOCALES = {
             'Gen', ' Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'
         ],
         days: [
-            'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica',
-            'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'
+            'Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 
+            'Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'
         ],
         buttons: [
             "Oggi", "Cancella", "Cancel", "Help", "Prior", "Next", "Finish"

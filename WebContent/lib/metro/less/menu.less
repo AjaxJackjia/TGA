@@ -1,4 +1,4 @@
-@import (once) "variables";
+@import (once) "vars";
 @import (once) "transform";
 @import (once) "utils";
 @import (once) "typography";
@@ -129,6 +129,20 @@
 			&.active-toggle {
 				&:before {
 					.rotate45;
+				}
+			}
+		}
+	}
+
+	&.default-dropdown {
+		& > li {
+			.d-menu {
+				width: auto;
+				min-width: 12.5rem;
+
+				a {
+					text-align: left;
+					padding: .75rem 2rem .75rem 2.5rem;
 				}
 			}
 		}

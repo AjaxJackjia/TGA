@@ -1,5 +1,37 @@
 # Changelog 
 
+## 3.0.14
+* fix tabcontrol frames overflow
+* upd dialog, add utility function showMetroDialog, hideMetroDialog
+* upd dialog, add place option
+* upd dialog, add set content options
+* upd slider, add work with non input target
+* upd slider, add two way binding with target 
+* upd slider, add new Events: onStartChange, onChanged
+* add video player
+* upd slider, add buffer (great for player)
+* fix esc click for full screen video player with mode window
+* add audio player
+* remove large slider
+* redefine slider
+* fix radio-button checked state
+* rewrite colors.less
+* fix pull request #794
+* fix pull request #796
+
+## 3.0.13
+* upd treeview for method addLeaf, now method returned li
+* upd bower config
+* init clock plugin
+* fix draggable for preventDefault
+* upd draggable add data-z-index attribute
+* upd f-menu add subclass default-dropdown
+* upd panel remove default padding for panel content
+* add textarea autoresize with max height
+* fix calendar for support const METRO_CURRENT_LOCALE
+* fix tabcontrol frames overflow
+* new font icons (+42)
+
 ## 3.0.12
 * add color schemes for calendar
 * fix bug in calendar after pull-request 785  
