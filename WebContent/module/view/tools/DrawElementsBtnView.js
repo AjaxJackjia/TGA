@@ -54,7 +54,8 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 		
 		events: {
 			'click .draw': 'draw',
-			'click .clean': 'clean'
+			'click .clean': 'clean',
+			'change .input-type > select': 'clean'
 		},
 		
 		initialize: function(){
@@ -140,7 +141,6 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 		
 		drawWKT: function(wkt) {
 			var geojson = Util.WKT2GeoJSON(wkt);
-			console.log(geojson);
 			this.drawGeoJSON(geojson);
 		},
 		
@@ -152,6 +152,7 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 		},
 		
 		clean: function() {
+			$('.input-text > textarea').val('');
 			Backbone.trigger('MapView:clean', null);
 		}
 	});

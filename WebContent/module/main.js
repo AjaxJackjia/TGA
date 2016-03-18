@@ -7,6 +7,8 @@
 			'jstsutil': '../lib/jsts/javascript.util',
 			'jsts': '../lib/jsts/jsts',
 			'leaflet': '../lib/leaflet/dist/leaflet',
+			'heatmap': '../lib/leaflet/dist/heatmap.min',
+			'leaflet-heatmap': '../lib/leaflet/dist/leaflet-heatmap',
 			'OpenLayers': '../lib/OpenLayers-2.13.1/OpenLayers',
 			'MD5' : '../lib/js-md5/build/md5.min',
 			'metro': '../lib/metro/build/js/metro.min',
@@ -29,6 +31,10 @@
 		    },
 	        'leaflet': {
 	        	exports: 'L'
+	        },
+	        'leaflet-heatmap': {
+	        	deps : [ 'heatmap' ],
+	        	exports: 'leaflet-heatmap'
 	        },
 	        'metro' : {
 		    	deps : [ 'jquery' ],

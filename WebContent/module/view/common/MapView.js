@@ -1,4 +1,4 @@
-define([ 'backbone', 'leaflet' ], function(Backbone, L) {
+define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatmap) {
 	var MapView = Backbone.View.extend({
 		
 		id: 'map',
@@ -10,9 +10,11 @@ define([ 'backbone', 'leaflet' ], function(Backbone, L) {
 		},
 		
 		initialize: function(){
-			_.bindAll(this, 'render', 'unrender', 'clean', 'drawGeoJSON');
+			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'drawGeoJSON', 'drawHeatmap');
 			
-			//initial status
+			/*
+			 * initial status settings
+			 * */
 			this.map = null;
 			this._center = [ 22.562, 114.026 ];
 			this._zoom = 12;
@@ -41,13 +43,41 @@ define([ 'backbone', 'leaflet' ], function(Backbone, L) {
 			//layer container
 			this._layersContainer = [];
 			
-			//register global events
+			//heatmap settings
+			this._heatmapSetting = {
+				  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+				  // if scaleRadius is false it will be the constant radius used in pixels
+				  "radius": 0.001,
+				  "maxOpacity": 0.4, 
+				  // scales the radius based on map zoom
+				  "scaleRadius": true, 
+				  // if set to false the heatmap uses the global maximum for colorization
+				  // if activated: uses the data maximum within the current map boundaries 
+				  //   (there will always be a red spot with useLocalExtremas true)
+				  "useLocalExtrema": true,
+				  // which field name in your data represents the latitude - default "lat"
+				  latField: 'lat',
+				  // which field name in your data represents the longitude - default "lng"
+				  lngField: 'lng',
+				  // which field name in your data represents the data value - default "value"
+				  valueField: 'count'
+			};
+			
+			/*
+			 * register global events
+			 * */
 			Backbone.
 				off('MapView:clean').
 				on('MapView:clean', this.clean, this);
 			Backbone.
+				off('MapView:getInfo').
+				on('MapView:getInfo', this.getInfo, this);
+			Backbone.
 				off('MapView:drawGeoJSON').
 				on('MapView:drawGeoJSON', this.drawGeoJSON, this);
+			Backbone.
+				off('MapView:drawHeatmap').
+				on('MapView:drawHeatmap', this.drawHeatmap, this);
 			
 			this.render();
 		},
@@ -62,6 +92,7 @@ define([ 'backbone', 'leaflet' ], function(Backbone, L) {
 			});
 
 			L.control.layers(this._baseMaps).addTo(this.map);
+			L.control.scale().addTo(this.map);
 			
 			return this;
 		},
@@ -75,6 +106,12 @@ define([ 'backbone', 'leaflet' ], function(Backbone, L) {
 			_.each(this._layersContainer, function(layer, index) {
 				self.map.removeLayer(layer);
 			});
+		},
+		
+		getInfo: function(param) {
+			param.center = this.map.getCenter();
+			param.zoom = this.map.getZoom();
+			param.bounds = this.map.getBounds();
 		},
 		
 		drawGeoJSON: function(param) {
@@ -127,6 +164,22 @@ define([ 'backbone', 'leaflet' ], function(Backbone, L) {
 				this.map.setView({lon: center.lng, lat: center.lat});
 				this.map.setZoom(13);
 			}
+		},
+		
+		drawHeatmap: function(data) {
+			/*
+			 * data format:
+			 * 	[{lat: 37.7962, lng:-122.4400, count: 1}, ..., {lat: 37.8004, lng:-122.4202, count: 1}]
+			 * */
+			this.clean();
+			
+			var layer = new HeatmapOverlay(this._heatmapSetting);
+			this.map.addLayer(layer);
+			this._layersContainer.push(layer);
+			
+			var heatmapData = {};
+			heatmapData.data = data;
+			layer.setData(heatmapData);
 		}
 	});
 	

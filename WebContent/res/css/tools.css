@@ -127,18 +127,33 @@
 
 /* draw elements view end */
 
-.result-view
+/* heatmap view begin */
+.heatmap-btn-view
 {
-	position: absolute;
-	display: none;
-	left: 50px;
-	top: 110px;
-	min-width: 240px;
-    height: 200px;
-    background-color: #eeeeee;
-    
-    transition: .5s;
-    -webkit-transition: .5s;
+    top: 155px;
 }
 
+.heatmap-view
+{
+	position: absolute;
+	left: 50px;
+    top: 10px;
+	width: 200px;
+	height: 200px;
+}
+
+.heatmap-view > .input-type
+{
+	margin: 0;
+	margin-bottom: 10px;
+	width: 200px;
+}
+
+.heatmap-view > .btns > .draw
+{
+	margin-left: 10px;
+    margin-right: 20px;
+}
+
+/* heatmap view end */
 

@@ -12,6 +12,8 @@ define([ 'backbone' ], function (Backbone) {
     	//tools modules
     	'tools-draw': './controller/ctl_tools_draw',
     	'tools-heatmap': './controller/ctl_tools_heatmap',
+    	'tools-od': './controller/ctl_tools_od_analysis',
+    	'tools-trip': './controller/ctl_tools_trip_analysis',
     	
     	//application modules
     	'app-detection': './controller/ctl_app_detection',

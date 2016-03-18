@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tga.api.model.GeometryType;
 import com.tga.db.DBUtil;
 
-public class GISElements {
+public class TrajectoryHandler {
 	
-	public static GeoJsonObject getNode(long id) throws SQLException {
+	public static GeoJsonObject getTrajectory(long id) throws SQLException {
 		Point point = null;
 		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement("select * from taxi.get_node(?)", id);
 		stmt.getConnection().setAutoCommit(false);

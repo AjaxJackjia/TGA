@@ -115,28 +115,30 @@ define([ 'backbone',
 			iconName: "mif-map2"
 		}));
 		ToolCollection.push(new TileModel({
+			//module
+			module: 'tools-od',
 			//tile classes
 			tileSize: "tile", 
 			bgColor: "bg-red",     
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Cloud",
+			tileLabel: "出租车OD分析",
 			tileContent: "icon",
 			iconName: "mif-cloud"
 		}));
 		ToolCollection.push(new TileModel({
+			//module
+			module: 'tools-trip',
 			//tile classes
-			tileSize: "tile", 
+			tileSize: "tile-wide", 
 			bgColor: "bg-blue",     
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "!!!",
+			tileLabel: "出租车轨迹分析",
 			tileContent: "icon",
-			iconName: "mif-cogs",
-			tileBadge: 123, 
-			badgeColor: "bg-grey",  
+			iconName: "mif-cogs"
 		}));
 		ToolCollection.push(new TileModel({
 			//tile classes
