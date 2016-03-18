@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Resource 
+		name="jdbc/postgresql"
+		auth="Container"
+		driverClassName="org.postgresql.Driver"
+		type="javax.sql.DataSource"
+		url="jdbc:postgresql://192.168.1.100:5432/sz_taxi_analysis"
+		username="jgc"
+		password="jgc"
+		maxActive="30"
+		maxIdle="20"
+		maxWait="1000" 
+	/>
+</Context> 

@@ -10,6 +10,7 @@ define([ 'backbone' ], function (Backbone) {
     	'intro-abstract': './controller/ctl_intro_abstract',
     	
     	//tools modules
+    	'tools-draw': './controller/ctl_tools_draw',
     	'tools-heatmap': './controller/ctl_tools_heatmap',
     	
     	//application modules

@@ -1,34 +1,45 @@
 (function(win){
 	require.config({
 		paths: {
-			'jquery': '../lib/jquery/dist/jquery.min',
-			'metro': '../lib/metro/build/js/metro.min',
 			'backbone': '../lib/backbone/backbone',
-			'underscore': '../lib/underscore/underscore-min',
 			'cookie' : '../lib/jquery.cookie/jquery.cookie',
+			'jquery': '../lib/jquery/dist/jquery.min',
+			'jstsutil': '../lib/jsts/javascript.util',
+			'jsts': '../lib/jsts/jsts',
+			'leaflet': '../lib/leaflet/dist/leaflet',
+			'OpenLayers': '../lib/OpenLayers-2.13.1/OpenLayers',
 			'MD5' : '../lib/js-md5/build/md5.min',
+			'metro': '../lib/metro/build/js/metro.min',
 			'text': '../lib/text/text',
+			'underscore': '../lib/underscore/underscore-min',
 			'util': './util/Util'
 		},
 		
 		shim: {
-	        'underscore': {
-	            exports: '_'
+			'backbone': {
+	            deps: ['underscore', 'jquery'],
+	            exports: 'Backbone'
 	        },
 	        'jquery': {
 	            exports: '$'
 	        },
-	        'backbone': {
-	            deps: ['underscore', 'jquery'],
-	            exports: 'Backbone'
+	        'jsts' : {
+		    	deps : [ 'jstsutil' ],
+		    	exports : 'jsts'
+		    },
+	        'leaflet': {
+	        	exports: 'L'
 	        },
 	        'metro' : {
 		    	deps : [ 'jquery' ],
 		    	exports : 'metro'
 		    },
-	       'MD5' : {
-	    	   exports: 'MD5'
-	       }
+	        'MD5' : {
+	    	    exports: 'MD5'
+	        },
+	        'underscore': {
+	            exports: '_'
+	        }
 		}  
 	});
 

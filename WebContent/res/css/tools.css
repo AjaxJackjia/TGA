@@ -1,0 +1,144 @@
+/* common begin */
+.menu-btn
+{
+	position: absolute;
+	left: 0;
+    margin: 0 auto;
+    padding: 0;
+	width: 30px;
+    height: 25px;
+    line-height: 20px;
+	font-size: 20px;
+    color: #eeeeee;
+    background-color: #59cde2;
+    cursor: pointer;
+    
+    transition: .5s;
+    -webkit-transition: .5s;
+}
+
+.menu-btn > span
+{
+	padding-left: 5px;
+	transition: .7s;
+    -webkit-transition: .7s;
+}
+
+.menu-btn.expand
+{
+	width: 40px;
+	transition: .5s;
+    -webkit-transition: .5s;
+}
+
+.menu-btn.expand > span
+{
+	padding-left: 15px;
+	transition: .7s;
+    -webkit-transition: .7s;
+}
+
+.back-btn-view
+{
+	top: 75px;
+}
+
+.info-btn-view
+{
+	top: 115px;
+}
+
+.input-od-view
+{
+	position: absolute;
+	display: none;
+	width: 240px;
+    height: 91px;
+    background-color: #eeeeee;
+    
+    transition: .5s;
+    -webkit-transition: .5s;
+}
+
+.input-od-view > div.start
+{
+	position: absolute;
+	left: 0;
+	top: 0;
+	margin: 0;
+}
+
+.input-od-view > div.end
+{
+	position: absolute;
+	left: 0;
+	top: 50px;
+	margin: 0;
+}
+
+.input-od-view > .exchange
+{
+	position: absolute;
+	left: 215px;
+    top: 35px;
+    margin: 0;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+	cursor: pointer;
+}
+
+/* common end */
+
+/* draw elements view begin */
+.draw-elements-btn-view
+{
+    top: 155px;
+}
+
+.draw-elements-view
+{
+	position: absolute;
+	left: 50px;
+    top: 10px;
+	width: 200px;
+	height: 200px;
+}
+
+.draw-elements-view > .input-type
+{
+	margin: 0;
+	margin-bottom: 10px;
+	width: 200px;
+}
+
+.draw-elements-view > .input-text,
+.draw-elements-view > .input-text > textarea
+{
+	width: 200px;
+	height: 150px;
+}
+
+.draw-elements-view > .btns > .draw
+{
+	margin-left: 10px;
+    margin-right: 20px;
+}
+
+/* draw elements view end */
+
+.result-view
+{
+	position: absolute;
+	display: none;
+	left: 50px;
+	top: 110px;
+	min-width: 240px;
+    height: 200px;
+    background-color: #eeeeee;
+    
+    transition: .5s;
+    -webkit-transition: .5s;
+}
+
+

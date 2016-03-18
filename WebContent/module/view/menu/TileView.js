@@ -7,7 +7,7 @@ define([ 'backbone', 'metro' ], function(Backbone, Metro) {
 		},
 		
 		initialize: function(){
-			_.bindAll(this, 'render', 'select', 'createLableTile', 'createImageTile');
+			_.bindAll(this, 'render', 'unrender', 'select', 'createLableTile', 'createImageTile');
 			
 			//default status
 			this.default_tile_size = 'tile';
@@ -53,6 +53,10 @@ define([ 'backbone', 'metro' ], function(Backbone, Metro) {
 			}
 			
 			return this;
+		},
+		
+		unrender: function() {
+			$(this.el).remove();
 		},
 		
 		createLableTile: function() {

@@ -89,33 +89,30 @@ define([ 'backbone',
 		ToolGroup.setTitle('数据建模');
 		var ToolCollection = [];
 		ToolCollection.push(new TileModel({
+			//module
+			module: 'tools-draw',
 			//tile classes
-			tileSize: "tile-large", 
-			bgColor: "bg-yellow",     
+			tileSize: "tile-wide", 
+			bgColor: "bg-blue",     
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Image Carousel",
-			tileContent: "image",
-			imageStyle: "carousel",
-			imageUrls: [ 
-			             "res/images/menu/1.jpg",
-			             "res/images/menu/2.jpg",
-			             "res/images/menu/3.jpg",
-			             "res/images/menu/4.jpg",
-			             "res/images/menu/5.jpg"
-			           ]
+			tileLabel: "查询绘制地图基础数据",
+			tileContent: "icon",
+			iconName: "mif-pencil"
 		}));
 		ToolCollection.push(new TileModel({
+			//module
+			module: 'tools-heatmap',
 			//tile classes
 			tileSize: "tile", 
 			bgColor: "bg-blue",     
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Cloud",
+			tileLabel: "OD热度图",
 			tileContent: "icon",
-			iconName: "mif-cloud"
+			iconName: "mif-map2"
 		}));
 		ToolCollection.push(new TileModel({
 			//tile classes
@@ -191,7 +188,16 @@ define([ 'backbone',
 		$('body > .container').append($area);
 		
 		Controller.onRouteChange = function() {
+			//remove title 
+			$areaTitle.remove();
 			
+			//remove group
+			IntroductionGroup.unrender();
+			ToolGroup.unrender();
+			ApplicationGroup.unrender();
+			
+			//remove area
+			$area.remove();
 		};
 		
 		//adjust tile area width

@@ -6,7 +6,7 @@ define([ 'backbone', 'view/menu/TileView' ], function(Backbone, TileView) {
 		
 		initialize: function(){
 			//ensure correct scope
-			_.bindAll(this, 'render', 'setWidth', 'setTitle', 'setTiles');
+			_.bindAll(this, 'render', 'unrender', 'setWidth', 'setTitle', 'setTiles');
 			
 			this.width = 'two'; //default is two
 			this.title = '';
@@ -32,6 +32,10 @@ define([ 'backbone', 'view/menu/TileView' ], function(Backbone, TileView) {
 			$(this.el).append($collection);
 			
 			return this;
+		},
+		
+		unrender: function() {
+			$(this.el).remove();
 		},
 		
 		setWidth: function(width) {
