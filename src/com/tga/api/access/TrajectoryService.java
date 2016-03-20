@@ -42,14 +42,14 @@ import com.tga.util.Config;
 import com.tga.util.Util;
 
 
-@Path("/trajectory")
+@Path("/trajectories")
 public class TrajectoryService extends BaseService {
 	private static final Log LOGGER = LogFactory.getLog("InfoLog");
 	
 	@GET
-	@Path("/{id}")
+	@Path("/{tripId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getTrajectory(@QueryParam("id") String p_id) throws JSONException, SQLException, JsonProcessingException 
+	public Response getTrajectory(@PathParam("tripId") String p_id) throws JSONException, SQLException, JsonProcessingException 
 	{
 		//check param
 		if((p_id == null || p_id.equals(""))) {
@@ -57,14 +57,22 @@ public class TrajectoryService extends BaseService {
 		}
 		
 		long id = Long.parseLong(p_id);
-		FeatureCollection featureCollection = new FeatureCollection();
-		Feature feature = new Feature();
-		featureCollection.add(feature);
-		GeoJsonObject way = TrajectoryHandler.getTrajectory(id);
-		feature.setGeometry(way);
-		
+		JSONObject result = new JSONObject();
 		ObjectMapper mapper = new ObjectMapper();
-		return buildResponse(OK, mapper.writeValueAsString(featureCollection));
+		
+		//gps data
+		FeatureCollection gpsFeatureCollection = TrajectoryHandler.getRawGPS(id);
+		result.put("gpsData", mapper.writeValueAsString(gpsFeatureCollection));
+		
+		//assign data
+		FeatureCollection assignFeatureCollection = TrajectoryHandler.getAssign(id);
+		result.put("assignData", mapper.writeValueAsString(assignFeatureCollection));
+		
+		//augment data
+		FeatureCollection augmentFeatureCollection = TrajectoryHandler.getAugment(id);
+		result.put("augmentData", mapper.writeValueAsString(augmentFeatureCollection));
+		
+		return buildResponse(OK, result);
 	}
 	
 }

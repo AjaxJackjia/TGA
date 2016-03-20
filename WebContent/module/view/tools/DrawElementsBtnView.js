@@ -31,7 +31,7 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 		},
 		
 		unrender: function() {
-			this.resultView.unrender();
+			this.drawElementsView.unrender();
 			$(this.el).remove();
 		},
 		

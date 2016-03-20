@@ -157,3 +157,41 @@
 
 /* heatmap view end */
 
+/* trip analysis view begin */
+.trip-analysis-btn-view
+{
+	top: 155px;
+}
+
+.trip-analysis-view
+{
+	position: absolute;
+	left: 50px;
+    top: 10px;
+	width: 200px;
+	height: 200px;
+}
+
+.trip-analysis-view > .trip-id
+{
+	margin: 0;
+	margin-bottom: 10px;
+	width: 200px;
+}
+
+.trip-analysis-view > .raw-layer,
+.trip-analysis-view > .assign-layer,
+.trip-analysis-view > .augment-layer
+{
+	margin: 0;
+    margin-top: -10px;
+	width: 150px;
+}
+
+.trip-analysis-view > .btns > .draw
+{
+	margin-left: 10px;
+    margin-right: 20px;
+}
+
+/* trip analysis view end */

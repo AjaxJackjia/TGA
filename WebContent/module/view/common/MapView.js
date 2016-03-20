@@ -10,7 +10,8 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 		},
 		
 		initialize: function(){
-			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'drawGeoJSON', 'drawHeatmap');
+			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'toggleLayer',
+					'drawGeoJSON', 'drawHeatmap', 'drawTrip' );
 			
 			/*
 			 * initial status settings
@@ -41,7 +42,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			this._layersControl = new L.Control.Layers(this._baseMaps);
 			
 			//layer container
-			this._layersContainer = [];
+			this._layersContainer = {};
 			
 			//heatmap settings
 			this._heatmapSetting = {
@@ -63,6 +64,32 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				  valueField: 'count'
 			};
 			
+			//trip layer setting
+			this._trip_gps_setting = {
+				radius: 8,
+				fillColor: "#ff7800",
+				color: "#000",
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			};
+			
+			this._trip_segment_setting = {
+				fillColor: "#ff7800",
+				color: "#000",
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			};
+			
+			this._trip_augment_segment_setting = {
+				fillColor: "#ff7800",
+				color: "#000",
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			};
+			
 			/*
 			 * register global events
 			 * */
@@ -78,6 +105,12 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			Backbone.
 				off('MapView:drawHeatmap').
 				on('MapView:drawHeatmap', this.drawHeatmap, this);
+			Backbone.
+				off('MapView:drawTrip').
+				on('MapView:drawTrip', this.drawTrip, this);
+			Backbone.
+				off('MapView:toggleLayer').
+				on('MapView:toggleLayer', this.toggleLayer, this);
 			
 			this.render();
 		},
@@ -103,15 +136,29 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 		
 		clean: function() {
 			var self = this;
-			_.each(this._layersContainer, function(layer, index) {
+			_.each(this._layersContainer, function(layer, key) {
 				self.map.removeLayer(layer);
 			});
+			this._layersContainer = {};
 		},
 		
 		getInfo: function(param) {
 			param.center = this.map.getCenter();
 			param.zoom = this.map.getZoom();
 			param.bounds = this.map.getBounds();
+		},
+		
+		toggleLayer: function(param) {
+			if(!this._layersContainer.hasOwnProperty(param.layerid)) {
+				alert('Invalid layer id!');
+				return;
+			}
+			
+			if(!param.status) {
+				this.map.removeLayer(this._layersContainer[param.layerid]);
+			}else{
+				this.map.addLayer(this._layersContainer[param.layerid]);
+			}
 		},
 		
 		drawGeoJSON: function(param) {
@@ -154,7 +201,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				    }
 				}).addTo(self.map);
 				
-				self._layersContainer.push(mapLayer);
+				self._layersContainer[mayLayer._leaflet_id] = mapLayer;
 			});
 			
 			//adjust map view
@@ -175,12 +222,68 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			
 			var layer = new HeatmapOverlay(this._heatmapSetting);
 			this.map.addLayer(layer);
-			this._layersContainer.push(layer);
+			this._layersContainer[layer._leaflet_id] = layer;
 			
 			var heatmapData = {};
 			heatmapData.data = data;
 			layer.setData(heatmapData);
+		},
+		
+		_drawPointLayer: function(latlng, option) {
+			return L.circleMarker(latlng, option);
+		},
+		
+		_drawLineLayer: function(latlngs, option) {
+			return L.polyline(latlngs, option);
+		},
+		
+		_drawPolygonLayer: function() {
+			
+		},
+		
+		_drawTripFeature: function(feature, option) {
+			var self = this;
+			var layer = L.geoJson(feature, {
+			    style: function (feature) {
+			        return option;
+			    },
+			    onEachFeature: function (feature, layer) {
+			    	var popupHtml = '';
+			    	_.each(feature.geometry.properties, function(value, key) {
+			    		popupHtml += key + ' : ' + value + '<br/>';
+			    	});
+			    	popupHtml != '' && layer.bindPopup(popupHtml);
+			    },
+			    pointToLayer: function (feature, latlng) {
+			    	if(feature.geometry.type == 'Point') {
+			    		return self._drawPointLayer(latlng, self._trip_gps_setting);
+			    	}else if(feature.geometry.type == 'LineString') {
+			    		return self._drawPointLayer(latlng, self._trip_segment_setting);
+			    	}
+				}
+			}).addTo(this.map);
+			
+			this._layersContainer[layer._leaflet_id] = layer;
+			
+			return layer._leaflet_id;
+		},
+		
+		drawTrip: function(data) {
+			var gpsLayerCfg = {
+				color: '#a20025'
+			};
+			var assignLayerCfg = {
+				color: '#f0a30a'
+			};
+			var augmentLayerCfg = {
+				color: '#fa6800'
+			};
+			
+			data.gpsLayerId = this._drawTripFeature(data.gpsData, gpsLayerCfg);
+			data.assignLayerId = this._drawTripFeature(data.assignData, assignLayerCfg);
+			data.augmentLayerId = this._drawTripFeature(data.augmentData, augmentLayerCfg);
 		}
+		
 	});
 	
 	return MapView;

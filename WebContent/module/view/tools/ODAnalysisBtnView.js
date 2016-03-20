@@ -31,7 +31,7 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 		},
 		
 		unrender: function() {
-			this.heatmapView.unrender();
+			this.resultView.unrender();
 			$(this.el).remove();
 		},
 		
