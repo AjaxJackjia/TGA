@@ -10,8 +10,8 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 		},
 		
 		initialize: function(){
-			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'toggleLayer',
-					'drawGeoJSON', 'drawHeatmap', 'drawTrip' );
+			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'setZoom', 'toggleLayer',
+					'drawGeoJSON', 'drawHeatmap', 'drawTrip', 'drawSectionList');
 			
 			/*
 			 * initial status settings
@@ -111,6 +111,9 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			Backbone.
 				off('MapView:toggleLayer').
 				on('MapView:toggleLayer', this.toggleLayer, this);
+			Backbone.
+				off('MapView:drawSectionList').
+				on('MapView:drawSectionList', this.drawSectionList, this);
 			
 			this.render();
 		},
@@ -146,6 +149,10 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			param.center = this.map.getCenter();
 			param.zoom = this.map.getZoom();
 			param.bounds = this.map.getBounds();
+		},
+		
+		setZoom: function(zoomLevel) {
+			this.map.setZoom(zoomLevel);
 		},
 		
 		toggleLayer: function(param) {
@@ -201,7 +208,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				    }
 				}).addTo(self.map);
 				
-				self._layersContainer[mayLayer._leaflet_id] = mapLayer;
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
 			});
 			
 			//adjust map view
@@ -282,8 +289,65 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			data.gpsLayerId = this._drawTripFeature(data.gpsData, gpsLayerCfg);
 			data.assignLayerId = this._drawTripFeature(data.assignData, assignLayerCfg);
 			data.augmentLayerId = this._drawTripFeature(data.augmentData, augmentLayerCfg);
-		}
+		},
 		
+		drawSectionList: function(param) {
+			var self = this;
+			
+			var data = param.data;
+			var options = param.options;
+			
+			//interactive function
+			var clickFunc = function(e) {
+				var targetLayer = e.target;
+				var properties = targetLayer.feature.geometry.properties;
+				if(properties.hasOwnProperty('section_id')) {
+					var value = $('.section-textarea > textarea').val() + properties.section_id + ',';
+					$('.section-textarea > textarea').val(value);
+				}
+			};
+			var highlightFeatureFunc = function(e) {
+				var highlightLayer = e.target;
+
+				highlightLayer.setStyle({
+					weight: 5,
+					color: '#666',
+					dashArray: '',
+					fillOpacity: 0.7
+				});
+
+				if (!L.Browser.ie && !L.Browser.opera) {
+					highlightLayer.bringToFront();
+				}
+			};
+			
+			//draw geojson
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return {color: options.color};
+				    },
+				    onEachFeature: function (feature, layer) {
+				    	layer.on({
+				    		click: clickFunc,
+				            mouseover: highlightFeatureFunc,
+				            mouseout: function(e) {
+				            	mapLayer.resetStyle(e.target);
+				            }
+				        });
+				    }
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
+			});
+			
+			//add click event to map
+			this.map.off('click').on('click', function(e) {
+				var point = e.latlng;
+				var value = $('.gps-textarea > textarea').val() + point.lat + ',' + point.lng + '#';
+				$('.gps-textarea > textarea').val(value);
+			});
+		}
 	});
 	
 	return MapView;

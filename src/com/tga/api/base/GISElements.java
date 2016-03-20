@@ -15,6 +15,7 @@ import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
 import org.geojson.LineString;
 import org.geojson.LngLatAlt;
+import org.geojson.MultiLineString;
 import org.geojson.Point;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -95,23 +96,41 @@ public class GISElements {
 	}
 	
 	public static GeoJsonObject getSection(long id) throws SQLException {
-		LineString section = new LineString();
-		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement("select taxi.get_section(?)", id);
+		MultiLineString section = new MultiLineString();
+		
+		String sql = "select " + 
+					 "	T2.id as section_id, " +
+					 "	T3.id as segment_id, " +
+					 "	ST_X(T4.geom) as from_lng, " +
+					 "	ST_Y(T4.geom) as from_lat, " +
+					 "	ST_X(T5.geom) as to_lng, " +
+					 "	ST_Y(T5.geom) as to_lat " +
+					 "from " + 
+					 "	taxi.segment_section T1, " +
+					 "	taxi.sections T2, " + 
+					 "	taxi.segments T3, " + 
+					 "	nodes T4, " + 
+					 "	nodes T5 " + 
+					 "where " + 
+					 "	T1.segment_id = T3.id and " + 
+					 "	T1.section_id = T2.id and " + 
+					 "	T3.from_node = T4.id and " + 
+					 "	T3.to_node = T5.id and " + 
+					 "	T2.id = ? " +
+					 "order by " + 
+					 "	T3.id ";
+		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement(sql, id);
 		stmt.getConnection().setAutoCommit(false);
 		ResultSet rs = stmt.executeQuery();
-		if (rs.next())
-			rs = (ResultSet) rs.getObject(1);
 		ArrayList<Long> segments = new ArrayList<Long>();
 		int count = 0;
 		
 		while (rs.next()) {
 			//poionts
-			if(count == 0) {
-				section.add(new LngLatAlt(rs.getDouble("from_lng"), rs.getDouble("from_lat")));
-				section.add(new LngLatAlt(rs.getDouble("to_lng"), rs.getDouble("to_lat")));
-			}else{
-				section.add(new LngLatAlt(rs.getDouble("to_lng"), rs.getDouble("to_lat")));
-			}
+			LineString segment = new LineString();
+			segment.add(new LngLatAlt(rs.getDouble("from_lng"), rs.getDouble("from_lat")));
+			segment.add(new LngLatAlt(rs.getDouble("to_lng"), rs.getDouble("to_lat")));
+			section.add(segment.getCoordinates());
 			
 			//segments
 			segments.add(rs.getLong("segment_id"));
@@ -119,8 +138,6 @@ public class GISElements {
 			//properties
 			if(count == 0) {
 				section.setProperty("section_id", rs.getLong("section_id"));
-				section.setProperty("way_id", rs.getLong("way_id"));
-				section.setProperty("way_name", rs.getString("way_name"));
 			}
 			count++;
 		}
@@ -129,5 +146,72 @@ public class GISElements {
 		DBUtil.getInstance().closeStatementResource(stmt);
 		
 		return section;
+	}
+	
+	public static FeatureCollection getSections(double p_left, double p_right, double p_up, double p_down) throws SQLException {
+		FeatureCollection collection = new FeatureCollection();
+		
+		String sql = "select " + 
+					 "	T2.id as section_id, " +
+					 "	T3.id as segment_id, " +
+					 "	ST_X(T4.geom) as from_lng, " +
+					 "	ST_Y(T4.geom) as from_lat, " +
+					 "	ST_X(T5.geom) as to_lng, " +
+					 "	ST_Y(T5.geom) as to_lat " +
+					 "from " + 
+					 "	taxi.segment_section T1, " +
+					 "	taxi.sections T2, " + 
+					 "	taxi.segments T3, " + 
+					 "	nodes T4, " + 
+					 "	nodes T5 " + 
+					 "where " + 
+					 "	T1.segment_id = T3.id and " + 
+					 "	T1.section_id = T2.id and " + 
+					 "	T3.from_node = T4.id and " + 
+					 "	T3.to_node = T5.id and " + 
+					 "	ST_X(T4.geom) >= " + p_left + " and ST_X(T4.geom) <= " + p_right + " and " + 
+					 "	ST_Y(T4.geom) >= " + p_down + " and ST_Y(T4.geom) <= " + p_up + " and " + 
+					 "	ST_X(T5.geom) >= " + p_left + " and ST_X(T5.geom) <= " + p_right + " and " + 
+					 "	ST_Y(T5.geom) >= " + p_down + " and ST_Y(T5.geom) <= " + p_up + " " + 
+					 "order by " + 
+					 "	T2.id, T3.id ";
+		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement(sql);
+		stmt.getConnection().setAutoCommit(false);
+		ResultSet rs = stmt.executeQuery();
+		
+		long currentSectionId = 0L;
+		Feature feature = null;
+		MultiLineString section = null;
+		
+		while (rs.next()) {
+			long sectionId = rs.getLong("section_id");
+			if(currentSectionId != sectionId) {
+				if(feature != null) {
+					collection.add(feature);
+				}
+				
+				feature = new Feature();
+				section = new MultiLineString();
+				section.setProperty("section_id", rs.getLong("section_id"));
+				feature.setGeometry(section);
+				
+				LineString segment = new LineString();
+				segment.add(new LngLatAlt(rs.getDouble("from_lng"), rs.getDouble("from_lat")));
+				segment.add(new LngLatAlt(rs.getDouble("to_lng"), rs.getDouble("to_lat")));
+				section.add(segment.getCoordinates());
+				
+				currentSectionId = sectionId;
+			}else{
+				LineString segment = new LineString();
+				segment.add(new LngLatAlt(rs.getDouble("from_lng"), rs.getDouble("from_lat")));
+				segment.add(new LngLatAlt(rs.getDouble("to_lng"), rs.getDouble("to_lat")));
+				section.add(segment.getCoordinates());
+			}
+		}
+		collection.add(feature);
+		
+		DBUtil.getInstance().closeStatementResource(stmt);
+		
+		return collection;
 	}
 }

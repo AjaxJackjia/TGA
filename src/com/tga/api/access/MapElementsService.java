@@ -35,6 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tga.api.base.BaseService;
 import com.tga.api.base.GISElements;
+import com.tga.api.base.ODHandler;
 import com.tga.api.model.GeometryType;
 import com.tga.db.DBUtil;
 import com.tga.util.Config;
@@ -118,8 +119,8 @@ public class MapElementsService extends BaseService {
 		for (int i = 0; i < ids.length; ++i) {
 			Feature feature = new Feature();
 			featureCollection.add(feature);
-			GeoJsonObject point = GISElements.getSegment(ids[i]);
-			feature.setGeometry(point);
+			GeoJsonObject segment = GISElements.getSegment(ids[i]);
+			feature.setGeometry(segment);
 		}
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -148,9 +149,30 @@ public class MapElementsService extends BaseService {
 		for (int i = 0; i < ids.length; ++i) {
 			Feature feature = new Feature();
 			featureCollection.add(feature);
-			GeoJsonObject point = GISElements.getSection(ids[i]);
-			feature.setGeometry(point);
+			GeoJsonObject section = GISElements.getSection(ids[i]);
+			feature.setGeometry(section);
 		}
+		
+		ObjectMapper mapper = new ObjectMapper();
+		return buildResponse(OK, mapper.writeValueAsString(featureCollection));
+	}
+	
+	@GET
+	@Path("/sectionList")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getSectionList(
+			@QueryParam("zoom") int p_zoom,
+			@QueryParam("left") double p_left,
+			@QueryParam("right") double p_right,
+			@QueryParam("up") double p_up,
+			@QueryParam("down") double p_down ) throws JSONException, SQLException, JsonProcessingException 
+	{
+		//check param
+		if(p_zoom < 14) {
+			return buildResponse(PARAMETER_INVALID, null);
+		}
+		
+		FeatureCollection featureCollection = GISElements.getSections(p_left, p_right, p_up, p_down);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		return buildResponse(OK, mapper.writeValueAsString(featureCollection));

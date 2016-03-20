@@ -141,15 +141,17 @@ define([ 'backbone',
 			iconName: "mif-cogs"
 		}));
 		ToolCollection.push(new TileModel({
+			//module
+			module: 'tools-section-selection',
 			//tile classes
-			tileSize: "tile-wide", 
+			tileSize: "tile", 
 			bgColor: "bg-blue",     
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Cloud",
+			tileLabel: "区域section选择工具",
 			tileContent: "icon",
-			iconName: "mif-cloud"
+			iconName: "mif-table"
 		}));
 		ToolGroup.setTiles(ToolCollection);
 		
