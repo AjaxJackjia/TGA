@@ -51,7 +51,6 @@
 .input-od-view
 {
 	position: absolute;
-	display: none;
 	width: 240px;
     height: 91px;
     background-color: #eeeeee;
@@ -232,3 +231,38 @@
 }
 
 /* section selection view end */
+
+/* od analysis view begin */
+.od-analysis-btn-view
+{
+	top: 155px;
+}
+
+.od-analysis-view
+{
+	position: absolute;
+	left: 50px;
+    top: 10px;
+	width: 200px;
+	height: 200px;
+}
+
+.od-analysis-view > .radius
+{
+	position: absolute;
+	top: 100px;
+}
+
+.od-analysis-view > .btns
+{
+	position: absolute;
+	top: 160px;
+}
+
+.od-analysis-view > .btns > .draw
+{
+	margin-left: 10px;
+    margin-right: 20px;
+}
+
+/* od analysis view end */

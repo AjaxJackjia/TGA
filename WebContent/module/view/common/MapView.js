@@ -11,7 +11,8 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 		
 		initialize: function(){
 			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'setZoom', 'toggleLayer',
-					'drawGeoJSON', 'drawHeatmap', 'drawTrip', 'drawSectionList');
+					'drawGeoJSON', 'drawHeatmap', 'drawTrip', 'drawSectionList', 
+					'initODAnalysisClick', 'drawTrajectories', 'drawStartPoint', 'drawEndPoint');
 			
 			/*
 			 * initial status settings
@@ -114,6 +115,18 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			Backbone.
 				off('MapView:drawSectionList').
 				on('MapView:drawSectionList', this.drawSectionList, this);
+			Backbone.
+				off('MapView:initODAnalysisClick').
+				on('MapView:initODAnalysisClick', this.initODAnalysisClick, this);
+			Backbone.
+				off('MapView:drawTrajectories').
+				on('MapView:drawTrajectories', this.drawTrajectories, this);
+			Backbone.
+				off('MapView:drawStartPoint').
+				on('MapView:drawStartPoint', this.drawStartPoint, this);
+			Backbone.
+				off('MapView:drawEndPoint').
+				on('MapView:drawEndPoint', this.drawEndPoint, this);
 			
 			this.render();
 		},
@@ -346,6 +359,98 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				var point = e.latlng;
 				var value = $('.gps-textarea > textarea').val() + point.lat + ',' + point.lng + '#';
 				$('.gps-textarea > textarea').val(value);
+			});
+		},
+		
+		/*
+		 * od analysis view function
+		 * */
+		initODAnalysisClick: function() {
+			this.map.off('click').on('click', function(e) {
+				var point = e.latlng;
+				//start
+				if($('.start > input').val() == '') {
+					Backbone.trigger('InputODView:setStartPoint', point);
+				}else if($('.end > input').val() == '') {
+					Backbone.trigger('InputODView:setEndPoint', point);
+				}
+			});
+		},
+		
+		drawStartPoint: function(point) {
+			var layer = this._drawPointLayer(point, {
+				radius : 8,
+				fillColor : "#128023",
+				color : "#000",
+				weight : 1,
+				opacity : 1,
+				fillOpacity : 0.8
+			}).addTo(this.map);
+			this._layersContainer[layer._leaflet_id] = layer;
+		},
+		
+		drawEndPoint: function(point) {
+			var layer = this._drawPointLayer(point, {
+				radius : 8,
+				fillColor : "#da5a53",
+				color : "#000",
+				weight : 1,
+				opacity : 1,
+				fillOpacity : 0.8
+			}).addTo(this.map);
+			this._layersContainer[layer._leaflet_id] = layer;
+		},
+		
+		drawTrajectories: function(param) {
+			var self = this;
+			
+			var data = param.data;
+			var options = param.options;
+			
+			//interactive function
+			var clickFunc = function(e) { //remove from map
+				var targetLayer = e.target;
+		    	self.map.removeLayer(targetLayer);
+			};
+			var highlightFeatureFunc = function(e) {
+				var highlightLayer = e.target;
+
+				highlightLayer.setStyle({
+					weight: 5,
+					color: 'brown',
+					dashArray: '',
+					fillOpacity: 0.7
+				});
+
+				if (!L.Browser.ie && !L.Browser.opera) {
+					highlightLayer.bringToFront();
+				}
+			};
+			
+			//draw geojson
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return {
+				        	fillOpacity : 0.5,
+							stroke : true,
+							opacity : 0.5,
+							color : 'blue',
+							weight : 2
+				        };
+				    },
+				    onEachFeature: function (feature, layer) {
+				    	layer.on({
+				    		click: clickFunc,
+				            mouseover: highlightFeatureFunc,
+				            mouseout: function(e) {
+				            	mapLayer.resetStyle(e.target);
+				            }
+				        });
+				    }
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
 			});
 		}
 	});

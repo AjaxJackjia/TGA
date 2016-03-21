@@ -1,8 +1,10 @@
-define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
+define([ 'backbone', 'metro', 'util', 
+         'view/common/InputODView' 
+       ], function(Backbone, Metro, Util, InputODView) {
 	
-	var HeatmapBtnView = Backbone.View.extend({
+	var ODAnalysisBtnView = Backbone.View.extend({
 		
-		className: 'heatmap-btn-view menu-btn',
+		className: 'od-analysis-btn-view menu-btn',
 		
 		events: {
 			'click': 'toggle',
@@ -15,28 +17,28 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 			_.bindAll(this, 'render', 'unrender', 'toggle', 'over', 'out');
 			
 			//initial param
-			this.heatmapView = new HeatmapView();
+			this.odAnalysisView = new ODAnalysisView();
 			
 			//add to page
 			this.render();
 		},
 		
 		render: function() {
-			var $button = $('<span class="mif-fire">');
+			var $button = $('<span class="mif-location">');
 			$(this.el).html($button);
-			$(this.el).attr('title', 'Heatmap setting...');
+			$(this.el).attr('title', 'OD analysis setting...');
 			
 			$('body > .container').append($(this.el));
 			return this;
 		},
 		
 		unrender: function() {
-			this.resultView.unrender();
+			this.odAnalysisView.unrender();
 			$(this.el).remove();
 		},
 		
 		toggle: function() {
-			this.heatmapView.toggle();
+			this.odAnalysisView.toggle();
 		},
 		
 		over: function() {
@@ -48,35 +50,40 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 		}
 	});
 	
-	var HeatmapView = Backbone.View.extend({
+	var ODAnalysisView = Backbone.View.extend({
 		
-		className: 'heatmap-view',
+		className: 'od-analysis-view',
 		
 		events: {
 			'click .draw': 'draw',
-			'click .clean': 'clean',
-			'change .input-type > select': 'clean'
+			'click .clean': 'clean'
 		},
 		
 		initialize: function(){
 			//ensure correct scope
 			_.bindAll(this, 'render', 'unrender', 'toggle', 'draw', 'clean');
 			
+			//initial status
+			this.inputODView = new InputODView();
+			
 			//add to page
 			this.render();
+			
+			//init map click event
+			Backbone.trigger('MapView:initODAnalysisClick', null);
 		},
 		
 		render: function() {
-			var $select = $('<div class="input-type input-control select">');
-			$select.append('<select>');
-			$select.find('select').append('<option value="1">O type</option>');
-			$select.find('select').append('<option value="2">D type</option>');
+			var $radius = $('<div class="radius input-control text" data-role="input">');
+			$radius.append('<input type="text" placeholder="radius">');
+			
 			
 			var $btns = $('<div class="btns input-control">');
 			$btns.append($('<button class="draw button primary">Draw</button>'));
 			$btns.append($('<button class="clean button primary">Clean</button>'));
 			
-			$(this.el).append($select);
+			$(this.el).append($radius);
+			$(this.el).append($(this.inputODView.el));
 			$(this.el).append($btns);
 			$('body > .container').append($(this.el));
 			
@@ -92,26 +99,39 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 		},
 		
 		draw: function() {
-			var type = parseInt($('.input-type > select').val());
-			var mapInfo = {};
-			Backbone.trigger('MapView:getInfo', mapInfo);
 			var param = {};
-			param.zoom = mapInfo.zoom;
-			param.type = type;
-			param.left = mapInfo.bounds._southWest.lng;
-			param.right = mapInfo.bounds._northEast.lng;
-			param.up = mapInfo.bounds._northEast.lat;
-			param.down = mapInfo.bounds._southWest.lat;
+			var od = this.inputODView.getOD();
+			param.o_lng = od.from_lng;
+			param.o_lat = od.from_lat;
+			param.d_lng = od.to_lng;
+			param.d_lat = od.to_lat;
+			param.radius = $('.radius > input').val() || 1000;
+			param.limit = 100000;
+			param.is_across = false;
 			
-			$.get('api/od/heatmap', param, function(data){
-				Backbone.trigger('MapView:drawHeatmap', data);
+			$.get('api/od/trajectory', param, function(data){
+				//clean
+				Backbone.trigger('MapView:clean', null);
+				
+				var trajectoriesParam = {};
+				trajectoriesParam.data = data;
+				trajectoriesParam.options = {
+					color: 'blue'	
+				};
+				
+				Backbone.trigger('MapView:drawTrajectories', trajectoriesParam);
+				Backbone.trigger('MapView:drawStartPoint', {lng: param.o_lng, lat: param.o_lat});
+				Backbone.trigger('MapView:drawEndPoint', {lng: param.d_lng, lat: param.d_lat});
 			});
 		},
 		
 		clean: function() {
+			this.inputODView.clean();
+			$('.radius > input').val('');
+			
 			Backbone.trigger('MapView:clean', null);
 		}
 	});
 	
-	return HeatmapBtnView;
+	return ODAnalysisBtnView;
 });

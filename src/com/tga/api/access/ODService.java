@@ -76,4 +76,24 @@ public class ODService extends BaseService {
 		return buildResponse(OK, result);
 	}
 	
+	@GET
+	@Path("/trajectory")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getTrajectoryData(
+			@QueryParam("o_lng") double p_o_lng,
+			@QueryParam("o_lat") double p_o_lat,
+			@QueryParam("d_lng") double p_d_lng,
+			@QueryParam("d_lat") double p_d_lat,
+			@QueryParam("radius") int p_radius, // unit is meter
+			@QueryParam("limit") int p_limit,
+			@QueryParam("is_across") boolean p_isAcross) throws JSONException, SQLException, JsonProcessingException 
+	{
+		Point O = new Point(p_o_lng, p_o_lat);
+		Point D = new Point(p_d_lng, p_d_lat);
+		// not across
+		FeatureCollection featureCollection = ODHandler.getTrajectoriesByOD(O, D, p_radius, p_limit);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		return buildResponse(OK, mapper.writeValueAsString(featureCollection));
+	}
 }
