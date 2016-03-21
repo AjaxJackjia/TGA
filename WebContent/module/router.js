@@ -15,6 +15,7 @@ define([ 'backbone' ], function (Backbone) {
     	'tools-od': './controller/ctl_tools_od_analysis',
     	'tools-trip': './controller/ctl_tools_trip_analysis',
     	'tools-section-selection': './controller/ctl_tools_section_selection',
+    	'tools-road-network': './controller/ctl_tools_road_network',
     	
     	//application modules
     	'app-detection': './controller/ctl_app_detection',

@@ -123,7 +123,7 @@ define([ 'backbone',
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "出租车OD分析",
+			tileLabel: "出租车OD轨迹集合分析",
 			tileContent: "icon",
 			iconName: "mif-cloud"
 		}));
@@ -136,7 +136,7 @@ define([ 'backbone',
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "出租车轨迹分析",
+			tileLabel: "出租车单条轨迹分析",
 			tileContent: "icon",
 			iconName: "mif-cogs"
 		}));
@@ -152,6 +152,19 @@ define([ 'backbone',
 			tileLabel: "区域section选择工具",
 			tileContent: "icon",
 			iconName: "mif-table"
+		}));
+		ToolCollection.push(new TileModel({
+			//module
+			module: 'tools-road-network',
+			//tile classes
+			tileSize: "tile", 
+			bgColor: "bg-blue",     
+			fgColor: "fg-white", 
+
+			//tile content
+			tileLabel: "路网模型建模",
+			tileContent: "icon",
+			iconName: "mif-feed"
 		}));
 		ToolGroup.setTiles(ToolCollection);
 		

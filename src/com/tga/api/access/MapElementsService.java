@@ -178,4 +178,23 @@ public class MapElementsService extends BaseService {
 		return buildResponse(OK, mapper.writeValueAsString(featureCollection));
 	}
 
+	@GET
+	@Path("/roadnetwork")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getRoadnetwork(
+			@QueryParam("zoom") int p_zoom,
+			@QueryParam("left") double p_left,
+			@QueryParam("right") double p_right,
+			@QueryParam("up") double p_up,
+			@QueryParam("down") double p_down ) throws JSONException, SQLException, JsonProcessingException 
+	{
+		//check param
+		if(p_zoom < 14) {
+			return buildResponse(PARAMETER_INVALID, null);
+		}
+		
+		JSONObject roadnetwork = GISElements.getRoadnetwork(p_left, p_right, p_up, p_down);
+		
+		return buildResponse(OK, roadnetwork);
+	}
 }

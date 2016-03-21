@@ -7,8 +7,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
@@ -213,5 +218,91 @@ public class GISElements {
 		DBUtil.getInstance().closeStatementResource(stmt);
 		
 		return collection;
+	}
+	
+	public static JSONObject getRoadnetwork(double p_left, double p_right, double p_up, double p_down) throws SQLException, JSONException {
+		JSONObject res = new JSONObject();
+		// nodes and lines
+		HashMap<String, JSONObject> nodes = new HashMap<String, JSONObject>();
+		HashMap<String, JSONObject> lines = new HashMap<String, JSONObject>();
+
+		String sqlStr = "select "
+				+ "	T4.section_id as sec_id, T1.id as seg_id, T1.from_node as from_id, ST_X(T2.geom) as from_x, ST_Y(T2.geom) as from_y, T1.to_node as to_id, ST_X(T3.geom) as to_x, ST_Y(T3.geom) as to_y, "
+				+ "	CASE  "
+				+ "	    WHEN T1.from_node = T7.from_node THEN 'yes' "
+				+ "	    ELSE 'no' "
+				+ "	END as is_section_from, "
+				+ "	CASE  "
+				+ "	    WHEN T1.to_node = T7.to_node THEN 'yes' "
+				+ "	    ELSE 'no' "
+				+ "	END as is_section_to, "
+				+ "	ST_Distance_Sphere(T2.geom, T3.geom) as segment_length "
+				+ "from  "
+				+ "	taxi.segments T1, nodes T2, nodes T3, taxi.segment_section T4, taxi.section_way T5, ways T6, taxi.sections T7 "
+				+ "where "
+				+ "	T1.from_node = T2.id and "
+				+ "	T1.to_node = T3.id and "
+				+ "	T1.id = T4.segment_id and "
+				+ "	T4.section_id = T5.section_id and "
+				+ "	T4.section_id = T7.id and "
+				+ "	T5.way_id = T6.id and "
+				+ "	T6.tags->'highway' in (select type from taxi.highway_types) and "
+				+ "	? <= ST_X(T2.geom) and ST_X(T2.geom) <= ? and "
+				+ "	? <= ST_Y(T3.geom) and ST_Y(T3.geom) <= ? ";
+		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement(sqlStr, p_left, p_right, p_down, p_up);
+		ResultSet rs_stmt = stmt.executeQuery();
+
+		while (rs_stmt.next()) {
+			JSONObject line = new JSONObject();
+			line.put("id", rs_stmt.getString("seg_id"));
+			line.put("from_x", rs_stmt.getString("from_x"));
+			line.put("from_y", rs_stmt.getString("from_y"));
+			line.put("to_x", rs_stmt.getString("to_x"));
+			line.put("to_y", rs_stmt.getString("to_y"));
+			line.put("length", rs_stmt.getString("segment_length"));
+
+			lines.put(line.getString("id"), line);
+
+			if (!nodes.containsKey(rs_stmt.getString("from_id"))) {
+				JSONObject node = new JSONObject();
+				node.put("id", rs_stmt.getString("from_id"));
+				node.put("x", rs_stmt.getString("from_x"));
+				node.put("y", rs_stmt.getString("from_y"));
+				node.put("is_section_node",
+						rs_stmt.getString("is_section_from"));
+
+				nodes.put(node.getString("id"), node);
+			}
+
+			if (!nodes.containsKey(rs_stmt.getString("to_id"))) {
+				JSONObject node = new JSONObject();
+				node.put("id", rs_stmt.getString("to_id"));
+				node.put("x", rs_stmt.getString("to_x"));
+				node.put("y", rs_stmt.getString("to_y"));
+				node.put("is_section_node", rs_stmt.getString("is_section_to"));
+
+				nodes.put(node.getString("id"), node);
+			}
+		}
+		JSONObject obj = new JSONObject();
+		JSONArray nodesArray = new JSONArray();
+		JSONArray linesArray = new JSONArray();
+		Iterator<Entry<String, JSONObject>> iter = nodes.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<String, JSONObject> entry = iter.next();
+			nodesArray.put((JSONObject) entry.getValue());
+		}
+		iter = lines.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<String, JSONObject> entry = iter.next();
+			linesArray.put((JSONObject) entry.getValue());
+		}
+		DBUtil.getInstance().closeStatementResource(stmt);
+
+		obj.put("nodes", nodesArray);
+		obj.put("lines", linesArray);
+		res.put("result", obj);
+		
+		return res;
 	}
 }

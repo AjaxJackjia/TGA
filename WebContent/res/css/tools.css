@@ -266,3 +266,31 @@
 }
 
 /* od analysis view end */
+
+/* road network view begin */
+.road-network-btn-view
+{
+	top: 155px;
+}
+
+.road-network-view
+{
+	position: absolute;
+	left: 50px;
+    top: 10px;
+	width: 200px;
+	height: 200px;
+}
+
+.road-network-view > .btns
+{
+	position: absolute;
+}
+
+.road-network-view > .btns > .draw
+{
+	margin-left: 10px;
+    margin-right: 20px;
+}
+
+/* road network view end */

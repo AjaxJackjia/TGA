@@ -13,6 +13,7 @@
 			'MD5' : '../lib/js-md5/build/md5.min',
 			'metro': '../lib/metro/build/js/metro.min',
 			'text': '../lib/text/text',
+			'raphael': '../lib/raphael/raphael',
 			'underscore': '../lib/underscore/underscore-min',
 			'util': './util/Util'
 		},
