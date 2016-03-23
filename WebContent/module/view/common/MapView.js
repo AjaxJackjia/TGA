@@ -380,24 +380,26 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 		drawStartPoint: function(point) {
 			var layer = this._drawPointLayer(point, {
 				radius : 8,
-				fillColor : "#128023",
+				fillColor : "green",
 				color : "#000",
 				weight : 1,
 				opacity : 1,
-				fillOpacity : 0.8
+				fillOpacity : 0.9
 			}).addTo(this.map);
+			layer.bringToFront();
 			this._layersContainer[layer._leaflet_id] = layer;
 		},
 		
 		drawEndPoint: function(point) {
 			var layer = this._drawPointLayer(point, {
 				radius : 8,
-				fillColor : "#da5a53",
+				fillColor : "red",
 				color : "#000",
 				weight : 1,
 				opacity : 1,
-				fillOpacity : 0.8
+				fillOpacity : 0.9
 			}).addTo(this.map);
+			layer.bringToFront();
 			this._layersContainer[layer._leaflet_id] = layer;
 		},
 		

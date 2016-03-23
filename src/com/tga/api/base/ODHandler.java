@@ -30,7 +30,7 @@ public class ODHandler {
 	public static JSONArray getOriginalODData(int odType, double p_left, double p_right, double p_up, double p_down) throws SQLException, JSONException {
 		JSONArray points = new JSONArray();
 		
-		String type = odType == 0 ? "o_point" : "d_point";
+		String type = odType == 1 ? "o_point" : "d_point";
 		String sql = "SELECT " + 
 					 "	ST_X(" + type + ") as lng, " + 
 					 "	ST_Y(" + type + ") as lat " + 

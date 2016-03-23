@@ -10,65 +10,29 @@ define([ 'backbone',
 		
 		//menu
 		var $area = $('<div class="tile-area fg-white tile-area-scheme-dark">');
-		var $areaTitle = $('<div class="tile-area-title">Taxi GPS Analysis System</div>');
+		var $areaTitle = $('<div class="tile-area-title">出租车GPS分析系统（Taxi GPS Analysis System）</div>');
 		
 		//introduction group
 		var IntroductionGroup = new TileGroupView();
-		IntroductionGroup.setWidth('three');
+		IntroductionGroup.setWidth('two');
 		IntroductionGroup.setTitle('项目介绍');
 		var IntroductionCollection = [];
 		IntroductionCollection.push(new TileModel({
 			//tile classes
-			tileSize: "tile-large", 
+			tileSize: "tile-wide", 
 			bgColor: "bg-yellow",     
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Image Carousel",
+			tileLabel: "",
 			tileContent: "image",
 			imageStyle: "carousel",
 			imageUrls: [ 
-			             "res/images/menu/1.jpg",
-			             "res/images/menu/2.jpg",
-			             "res/images/menu/3.jpg",
-			             "res/images/menu/4.jpg",
-			             "res/images/menu/5.jpg"
+			             "res/images/menu/big_data.jpg",
+			             "res/images/menu/smart_traffic.jpg",
+			             "res/images/menu/vehicle_network.png",
+			             "res/images/menu/GPS.jpg"
 			           ]
-		}));
-		IntroductionCollection.push(new TileModel({
-			//tile classes
-			tileSize: "tile", 
-			bgColor: "bg-blue",     
-			fgColor: "fg-white", 
-
-			//tile content
-			tileLabel: "Cloud",
-			tileContent: "icon",
-			iconName: "mif-cloud"
-		}));
-		IntroductionCollection.push(new TileModel({
-			//tile classes
-			tileSize: "tile", 
-			bgColor: "bg-red",     
-			fgColor: "fg-white", 
-
-			//tile content
-			tileLabel: "Cloud",
-			tileContent: "icon",
-			iconName: "mif-cloud"
-		}));
-		IntroductionCollection.push(new TileModel({
-			//tile classes
-			tileSize: "tile", 
-			bgColor: "bg-blue",     
-			fgColor: "fg-white", 
-
-			//tile content
-			tileLabel: "!!!",
-			tileContent: "icon",
-			iconName: "mif-cogs",
-			tileBadge: 123, 
-			badgeColor: "bg-grey",  
 		}));
 		IntroductionCollection.push(new TileModel({
 			//tile classes
@@ -77,9 +41,9 @@ define([ 'backbone',
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Cloud",
+			tileLabel: "基本介绍",
 			tileContent: "icon",
-			iconName: "mif-cloud"
+			iconName: "mif-mail"
 		}));
 		IntroductionGroup.setTiles(IntroductionCollection);
 		
@@ -93,7 +57,7 @@ define([ 'backbone',
 			module: 'tools-draw',
 			//tile classes
 			tileSize: "tile-wide", 
-			bgColor: "bg-blue",     
+			bgColor: "bg-lighterBlue",     
 			fgColor: "fg-white", 
 
 			//tile content
@@ -106,33 +70,33 @@ define([ 'backbone',
 			module: 'tools-heatmap',
 			//tile classes
 			tileSize: "tile", 
-			bgColor: "bg-blue",     
+			bgColor: "bg-lightRed",     
 			fgColor: "fg-white", 
 
 			//tile content
 			tileLabel: "OD热度图",
 			tileContent: "icon",
-			iconName: "mif-map2"
+			iconName: "mif-fire"
 		}));
 		ToolCollection.push(new TileModel({
 			//module
 			module: 'tools-od',
 			//tile classes
 			tileSize: "tile", 
-			bgColor: "bg-red",     
+			bgColor: "bg-teal",     
 			fgColor: "fg-white", 
 
 			//tile content
 			tileLabel: "出租车OD轨迹集合分析",
 			tileContent: "icon",
-			iconName: "mif-cloud"
+			iconName: "mif-location"
 		}));
 		ToolCollection.push(new TileModel({
 			//module
 			module: 'tools-trip',
 			//tile classes
 			tileSize: "tile-wide", 
-			bgColor: "bg-blue",     
+			bgColor: "bg-lightBlue",     
 			fgColor: "fg-white", 
 
 			//tile content
@@ -145,7 +109,7 @@ define([ 'backbone',
 			module: 'tools-section-selection',
 			//tile classes
 			tileSize: "tile", 
-			bgColor: "bg-blue",     
+			bgColor: "bg-green",     
 			fgColor: "fg-white", 
 
 			//tile content
@@ -158,7 +122,7 @@ define([ 'backbone',
 			module: 'tools-road-network',
 			//tile classes
 			tileSize: "tile", 
-			bgColor: "bg-blue",     
+			bgColor: "bg-darkBlue",     
 			fgColor: "fg-white", 
 
 			//tile content
@@ -180,20 +144,20 @@ define([ 'backbone',
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Cloud",
+			tileLabel: "实时在线出租车异常轨迹检测",
 			tileContent: "icon",
-			iconName: "mif-cloud"
+			iconName: "mif-search"
 		}));
 		ApplicationCollection.push(new TileModel({
 			//tile classes
 			tileSize: "tile-wide", 
-			bgColor: "bg-blue",     
+			bgColor: "bg-teal",     
 			fgColor: "fg-white", 
 
 			//tile content
-			tileLabel: "Cloud",
+			tileLabel: "支持交通热线发现的城市新区公交线路辅助决策方法",
 			tileContent: "icon",
-			iconName: "mif-cloud"
+			iconName: "mif-organization"
 		}));
 		ApplicationGroup.setTiles(ApplicationCollection);
 		
