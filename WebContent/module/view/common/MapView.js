@@ -12,7 +12,8 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 		initialize: function(){
 			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'setZoom', 'toggleLayer',
 					'drawGeoJSON', 'drawHeatmap', 'drawTrip', 'drawSectionList', 
-					'initODAnalysisClick', 'drawTrajectories', 'drawStartPoint', 'drawEndPoint');
+					'initODAnalysisClick', 'drawTrajectories', 'drawStartPoint', 'drawEndPoint',
+					'drawODPoint', 'drawGPSPoint', 'drawCurAtr', 'drawRecAtr', 'removeElements', 'putLayerFront');
 			
 			/*
 			 * initial status settings
@@ -91,6 +92,8 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				fillOpacity: 0.8
 			};
 			
+			//online detection layer setting
+			
 			/*
 			 * register global events
 			 * */
@@ -127,6 +130,24 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			Backbone.
 				off('MapView:drawEndPoint').
 				on('MapView:drawEndPoint', this.drawEndPoint, this);
+			Backbone.
+				off('MapView:drawODPoint').
+				on('MapView:drawODPoint', this.drawODPoint, this);
+			Backbone.
+				off('MapView:drawGPSPoint').
+				on('MapView:drawGPSPoint', this.drawGPSPoint, this);
+			Backbone.
+				off('MapView:drawCurAtr').
+				on('MapView:drawCurAtr', this.drawCurAtr, this);
+			Backbone.
+				off('MapView:drawRecAtr').
+				on('MapView:drawRecAtr', this.drawRecAtr, this);
+			Backbone.
+				off('MapView:removeElements').
+				on('MapView:removeElements', this.removeElements, this);
+			Backbone.
+				off('MapView:putLayerFront').
+				on('MapView:putLayerFront', this.putLayerFront, this);
 			
 			this.render();
 		},
@@ -357,7 +378,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			//add click event to map
 			this.map.off('click').on('click', function(e) {
 				var point = e.latlng;
-				var value = $('.gps-textarea > textarea').val() + point.lat + ',' + point.lng + '#';
+				var value = $('.gps-textarea > textarea').val() + point.lng + ',' + point.lat + '#';
 				$('.gps-textarea > textarea').val(value);
 			});
 		},
@@ -388,6 +409,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			}).addTo(this.map);
 			layer.bringToFront();
 			this._layersContainer[layer._leaflet_id] = layer;
+			return layer;
 		},
 		
 		drawEndPoint: function(point) {
@@ -401,6 +423,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			}).addTo(this.map);
 			layer.bringToFront();
 			this._layersContainer[layer._leaflet_id] = layer;
+			return layer;
 		},
 		
 		drawTrajectories: function(param) {
@@ -454,7 +477,188 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				
 				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
 			});
+		},
+		
+		/*
+		 * draw online detection elements
+		 * */
+		drawODPoint: function(param) {
+			var self = this;
+			
+			var data = param.get('geojson');
+			var feature = data.features[0];
+			var point = {
+				lng: param.get('lng'), 
+				lat: param.get('lat')
+			};
+			if(param.get('type') == 'O') {
+				var OLayer = this.drawStartPoint(point);
+				param.set('layerid', OLayer._leaflet_id);
+			}else{
+				var DLayer = this.drawEndPoint(point);
+				param.set('layerid', DLayer._leaflet_id);
+			}
+		},
+		
+		drawGPSPoint: function(param) {
+			var self = this;
+			
+			var data = param.get('geojson');
+			var options = param.get('options');
+			
+			var _highlightStyle = {
+					fillOpacity : 0.8,
+					pointRadius : 5
+			};
+			var _normalStyle = {
+					fillColor : 'yellow',
+					stroke : true,
+					color : 'black',
+					weight: 2, fill: true,
+					strokeWidth : 1,
+					fillOpacity : 0.9,
+					radius: 4
+	        };
+			
+			//interactive function
+			var clickFunc = function(e) { //remove from map
+				var targetLayer = e.target;
+				var popupHtml = '';
+		    	_.each(targetLayer.feature.geometry.properties, function(value, key) {
+		    		popupHtml += key + ' : ' + value + '<br/>';
+		    	});
+		    	popupHtml != '' && targetLayer.bindPopup(popupHtml);
+			};
+			
+			var highlightFeatureFunc = function(e) {
+				var highlightLayer = e.target;
+
+				highlightLayer.setStyle(_highlightStyle);
+
+				if (!L.Browser.ie && !L.Browser.opera) {
+					highlightLayer.bringToFront();
+				}
+			};
+			
+			//draw geojson
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return _normalStyle;
+				    },
+				    onEachFeature: function (feature, layer) {
+				    	layer.on({
+				    		click: clickFunc,
+				            mouseover: highlightFeatureFunc,
+				            mouseout: function(e) {
+				            	mapLayer.resetStyle(e.target);
+				            }
+				        });
+				    },
+				    pointToLayer: function (feature, latlng) {
+				    	return self._drawPointLayer(latlng, _normalStyle);
+					}
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
+				param.set('layerid', mapLayer._leaflet_id);
+			});
+		},
+		
+		_drawAtr: function(param, normalStyle) {
+			var self = this;
+			
+			var data = param.get('geojson');
+			var options = param.get('options');
+			
+			var _atr_normalStyle = normalStyle;
+			
+			var _atr_highlightStyle = {
+				weight: 7
+			};
+			
+			//interactive function
+			var clickFunc = function(e) { //remove from map
+				var targetLayer = e.target;
+				var popupHtml = '';
+		    	_.each(targetLayer.feature.geometry.properties, function(value, key) {
+		    		popupHtml += key + ' : ' + value + '<br/>';
+		    	});
+		    	popupHtml != '' && targetLayer.bindPopup(popupHtml);
+			};
+			var highlightFeatureFunc = function(e) {
+				var highlightLayer = e.target;
+
+				highlightLayer.setStyle(_atr_highlightStyle);
+
+				if (!L.Browser.ie && !L.Browser.opera) {
+					highlightLayer.bringToFront();
+				}
+			};
+			
+			//draw geojson
+			var layerids = [];
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return _atr_normalStyle;
+				    },
+				    onEachFeature: function (feature, layer) {
+				    	layer.on({
+				    		click: clickFunc,
+				            mouseover: highlightFeatureFunc,
+				            mouseout: function(e) {
+				            	mapLayer.resetStyle(e.target);
+				            }
+				        });
+				    },
+				    pointToLayer: function (feature, latlng) {
+				    	return self._drawLineLayer(latlng, _atr_highlightStyle);
+					}
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
+				layerids.push(mapLayer._leaflet_id);
+			});
+			param.set('layerids', layerids);
+		},
+		
+		drawCurAtr: function(param) {
+			var normalStyle = {
+				fillOpacity : 0.8,
+				stroke: true,
+				opacity: 0.8,
+				color: 'red',
+				weight: 4,
+				dashArray: "5, 15"
+			};
+			this._drawAtr(param, normalStyle);
+		},
+		
+		drawRecAtr: function(param) {
+			var normalStyle = {
+				fillOpacity : 0.5,
+				stroke: true,
+				opacity: 0.5,
+				color: 'blue',
+				weight: 4
+			};
+			this._drawAtr(param, normalStyle);
+		},
+		
+		removeElements: function(ids) {
+			var self = this;
+			_.each(ids, function(id, index) {
+				var layer = self._layersContainer[id];
+				self.map.removeLayer(layer);
+				delete self._layersContainer[id];
+			});
+		},
+		
+		putLayerFront: function(id) {
+			this._layersContainer[id] && this._layersContainer[id].bringToFront();
 		}
+		
 	});
 	
 	return MapView;

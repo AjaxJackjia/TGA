@@ -138,6 +138,8 @@ define([ 'backbone',
 		ApplicationGroup.setTitle('应用范例');
 		var ApplicationCollection = [];
 		ApplicationCollection.push(new TileModel({
+			//module
+			module: 'app-detection',
 			//tile classes
 			tileSize: "tile-wide", 
 			bgColor: "bg-blue",     

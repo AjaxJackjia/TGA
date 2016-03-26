@@ -103,7 +103,34 @@ define([ 'backbone', 'metro' ], function(Backbone, Metro) {
 			}
 		}, 
 		
+		_getStart: function() {
+			var start = $('.start > input', this.el).val()
+			if(start != '') {
+				var p = start.split(',');
+				
+				this.start = {};
+				this.start.lng = p[1];
+				this.start.lat = p[0];
+			}
+		},
+		
+		_getEnd: function() {
+			var end = $('.end > input', this.el).val()
+			if(end != '') {
+				var p = end.split(',');
+				
+				this.end = {};
+				this.end.lng = p[1];
+				this.end.lat = p[0];
+			}
+		},
+		
 		getOD: function() {
+			if(this.start == null || this.end == null) {
+				this._getStart();
+				this._getEnd();
+			}
+			
 			return {
 				from_lng: this.start.lng,
 				from_lat: this.start.lat,

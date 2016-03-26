@@ -197,4 +197,37 @@ public class MapElementsService extends BaseService {
 		
 		return buildResponse(OK, roadnetwork);
 	}
+	
+	@GET
+	@Path("/atrs/{sectionids}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAtrs(@PathParam("sectionids") String p_sectionids) throws JSONException, SQLException, JsonProcessingException 
+	{
+		//check param
+		if((p_sectionids == null || p_sectionids.equals(""))) {
+			return buildResponse(PARAMETER_INVALID, null);
+		}
+				
+		//pre-process
+		String id_csv[] = p_sectionids.split(",");
+		long ids[] = new long[id_csv.length];
+		for (int i = 0; i < id_csv.length; ++i) {
+			ids[i] = Long.parseLong(id_csv[i]);
+		}
+		
+		FeatureCollection featureCollection = new FeatureCollection();
+		for (int i = 0; i < ids.length; ++i) {
+			Feature feature = new Feature();
+			featureCollection.add(feature);
+			GeoJsonObject section = GISElements.getSection(ids[i]);
+			feature.setGeometry(section);
+		}
+		
+		JSONObject result = new JSONObject();
+		result.put("sectionids", p_sectionids);
+		ObjectMapper mapper = new ObjectMapper();
+		result.put("geojson", mapper.writeValueAsString(featureCollection));
+		
+		return buildResponse(OK, result);
+	}
 }

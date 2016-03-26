@@ -70,7 +70,7 @@ define([ 'backbone', 'metro', 'util' ], function(Backbone, Metro, Util) {
 			$textarea_section.append('<textarea placeholder="selected sections id, e.g. sectionid1,sectionid2,...,sectionidn"></textarea>');
 			
 			var $textarea_gps = $('<div class="gps-textarea input-control textarea">');
-			$textarea_gps.append('<textarea placeholder="selected gps points, e.g. lat,lng#lat,lng#...#lat,lng"></textarea>');
+			$textarea_gps.append('<textarea placeholder="selected gps points, e.g. lng,lat#lng,lat#...#lng,lat"></textarea>');
 		
 			var $btns = $('<div class="btns input-control">');
 			$btns.append($('<button class="draw button primary">Draw</button>'));

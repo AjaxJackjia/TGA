@@ -120,8 +120,10 @@ define([ 'backbone', 'metro', 'util',
 				};
 				
 				Backbone.trigger('MapView:drawTrajectories', trajectoriesParam);
-				Backbone.trigger('MapView:drawStartPoint', {lng: param.o_lng, lat: param.o_lat});
-				Backbone.trigger('MapView:drawEndPoint', {lng: param.d_lng, lat: param.d_lat});
+				setTimeout(function() {
+					Backbone.trigger('MapView:drawStartPoint', {lng: param.o_lng, lat: param.o_lat});
+					Backbone.trigger('MapView:drawEndPoint', {lng: param.d_lng, lat: param.d_lat});
+				}, 1000);
 			});
 		},
 		

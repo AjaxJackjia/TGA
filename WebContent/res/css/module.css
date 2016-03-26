@@ -294,3 +294,134 @@
 }
 
 /* road network view end */
+
+/* online detection view begin */
+.online-detection-btn-view
+{
+	top: 155px;
+}
+
+.online-detection-view
+{
+	position: absolute;
+	left: 50px;
+    top: 10px;
+	width: 200px;
+	height: 200px;
+}
+
+.online-detection-view .input-view
+{
+	position: relative;
+}
+
+.online-detection-view .input-view > .input-type
+{
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	width: 130px;
+}
+
+.online-detection-view .input-view > .btns
+{
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	padding-left: 5px;
+}
+
+.online-detection-view .input-view > .btns > .set
+{
+	margin: 0;
+	padding: 0;
+	width: 65px;
+}
+
+.online-detection-view .input-view > .input-data
+{
+	margin: 0;
+	padding: 0;
+	padding-top: 5px;
+	width: 200px;
+}
+
+.online-detection-view .input-view > .input-data > textarea
+{
+	width: 200px;
+}
+
+.online-detection-view .data-view
+{
+	position: relative;
+	width: 240px;
+}
+
+.online-detection-view .data-view .title,
+.online-detection-view .data-view .status,
+.online-detection-view .data-view .delete,
+.online-detection-view .data-view .plus,
+.online-detection-view .data-view .delete-cur-atr,
+.online-detection-view .data-view .front-cur-atr,
+.online-detection-view .data-view .delete-gps,
+.online-detection-view .data-view .front-gps,
+.online-detection-view .data-view .delete-od,
+.online-detection-view .data-view .front-od
+{
+	display: inline-block;
+	padding-left: 5px;
+	height: 30px;
+    line-height: 24px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.online-detection-view .data-view > .gps-view > .gps-list,
+.online-detection-view .data-view > .recommend-atr-view > .atr-list
+{
+	margin-top: -10px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+}
+
+.online-detection-view .data-view > .gps-view > .gps-list .list-group-content,
+.online-detection-view .data-view > .recommend-atr-view > .atr-list .list-group-content
+{
+	margin-top: 0px;
+}
+
+.online-detection-view .data-view > .gps-view > .gps-list .list-group-content > .mylist,
+.online-detection-view .data-view > .recommend-atr-view > .atr-list .list-group-content > .mylist
+{
+	padding: 5px;
+    width: 150px;
+    height: 30px;
+}
+
+.online-detection-view .data-view > .gps-view > .gps-list .list-group-content > .mylist > span,
+.online-detection-view .data-view > .recommend-atr-view > .atr-list .list-group-content > .mylist > span
+{
+	padding: 0 10px;
+}
+
+.online-detection-view .data-view > .gps-view > .gps-list .list-group-content > .mylist > div,
+.online-detection-view .data-view > .recommend-atr-view > .atr-list .list-group-content > .mylist > div
+{
+	padding: 0 5px;
+	cursor: pointer;
+}
+
+.online-detection-view .calculation-result-view
+{
+	position: relative;
+	width: 200px;
+}
+
+.online-detection-view .calculation-result-view > .title
+{
+	font-size: 20px;
+	font-weight: 700;
+}
+
+
+/* online detection view end */
