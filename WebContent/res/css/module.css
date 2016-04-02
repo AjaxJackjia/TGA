@@ -423,5 +423,58 @@
 	font-weight: 700;
 }
 
-
 /* online detection view end */
+
+/* hotline view begin */
+.hotline-btn-view
+{
+	top: 155px;
+}
+
+.hotline-view
+{
+	position: absolute;
+	left: 50px;
+    top: 10px;
+	width: 230px;
+	height: 200px;
+}
+
+.hotline-view .input-view
+{
+	position: relative;
+}
+
+.hotline-view .input-view > .scale > .scale-a,
+.hotline-view .input-view > .scale > .scale-b
+{
+	width: 110px;
+}
+
+.hotline-view .input-view > .scale > .scale-b,
+.hotline-view .input-view > .param > .param-epsilon-cluster,
+.hotline-view .input-view > .param > .param-minPts
+{
+	margin-left: 10px;
+}
+
+.hotline-view .input-view > .param > .param-epsilon,
+.hotline-view .input-view > .param > .param-epsilon-cluster,
+.hotline-view .input-view > .param > .param-minPts
+{
+	width: 60px;
+}
+
+
+.hotline-view .input-view > .btns > .clean
+{
+	margin-left: 10px;
+}
+
+.chart-btn-view
+{
+	top: 195px;
+}
+
+/* hotline view end */
+

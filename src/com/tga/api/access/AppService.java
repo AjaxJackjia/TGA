@@ -1,10 +1,12 @@
 package com.tga.api.access;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -12,10 +14,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tga.api.algorithm.Hotline;
 import com.tga.api.algorithm.OnlineDetection;
 import com.tga.api.base.BaseService;
-
 
 @Path("/app")
 public class AppService extends BaseService {
@@ -62,6 +66,38 @@ public class AppService extends BaseService {
 		rec_atrs.add(rec_5);
 		
 		JSONArray result = OnlineDetection.calcuateAnamolyScore(assigned_cur_atr, augmented_cur_atr, rec_atrs);
+		
+		return buildResponse(OK, result);
+	}
+	
+	@GET
+	@Path("/hotline/calculation")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHotlineCalculation(
+			@QueryParam("center_lng") double p_center_lng,
+			@QueryParam("center_lat") double p_center_lat,
+			@QueryParam("scale_a") int p_scale_a,
+			@QueryParam("scale_b") int p_scale_b,
+			@QueryParam("epsilon") double p_epsilon,
+			@QueryParam("epsilon_cluster") double p_epsilon_cluster,
+			@QueryParam("minPts") int p_minPts) throws JSONException, SQLException, JsonProcessingException 
+	{
+		final double DEFAULT_epsilon = 50; //meter
+		final double DEFAULT_epsilon_cluster = 25; //meter
+		final int DEFAULT_minPts = 10; //number of points
+		
+		final int DEFAULT_scale_a = 300; //meter
+		final int DEFAULT_scale_b = 300; //meter
+		
+		if(p_scale_a == 0) p_scale_a = DEFAULT_scale_a;
+		if(p_scale_b == 0) p_scale_b = DEFAULT_scale_b;
+		if(p_epsilon == 0) p_epsilon = DEFAULT_epsilon;
+		if(p_epsilon_cluster == 0) p_epsilon_cluster = DEFAULT_epsilon_cluster;
+		if(p_minPts  == 0) p_minPts  = DEFAULT_minPts;
+		
+		Hotline hotline = new Hotline(p_epsilon, p_epsilon_cluster, p_minPts);
+		JSONObject result = hotline.opticsClustering(p_center_lng, p_center_lat, p_scale_a, p_scale_b);
+//		JSONObject result = hotline.DBSCANClustering(p_center_lng, p_center_lat, p_scale_a, p_scale_b);
 		
 		return buildResponse(OK, result);
 	}

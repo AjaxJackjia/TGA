@@ -19,7 +19,7 @@ define([ 'backbone' ], function (Backbone) {
     	
     	//application modules
     	'app-detection': './controller/ctl_app_detection',
-    	'app-hotline': '/controller/ctl_app_hotline',
+    	'app-hotline': './controller/ctl_app_hotline',
     	
     	//error
         '*error': './error/default',

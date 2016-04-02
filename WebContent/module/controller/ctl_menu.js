@@ -151,6 +151,8 @@ define([ 'backbone',
 			iconName: "mif-search"
 		}));
 		ApplicationCollection.push(new TileModel({
+			//module
+			module: 'app-hotline',
 			//tile classes
 			tileSize: "tile-wide", 
 			bgColor: "bg-teal",     

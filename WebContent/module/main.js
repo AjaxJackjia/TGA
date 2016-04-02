@@ -8,6 +8,7 @@
 			'jsts': '../lib/jsts/jsts',
 			'leaflet': '../lib/leaflet/dist/leaflet',
 			'heatmap': '../lib/leaflet/dist/heatmap.min',
+			'highcharts': '../lib/highcharts/js/highcharts',
 			'leaflet-heatmap': '../lib/leaflet/dist/leaflet-heatmap',
 			'OpenLayers': '../lib/OpenLayers-2.13.1/OpenLayers',
 			'MD5' : '../lib/js-md5/build/md5.min',
@@ -25,6 +26,10 @@
 	        },
 	        'jquery': {
 	            exports: '$'
+	        },
+	        'highcharts': {
+	        	deps : [ 'jquery' ],
+		    	exports : 'highcharts'
 	        },
 	        'jsts' : {
 		    	deps : [ 'jstsutil' ],

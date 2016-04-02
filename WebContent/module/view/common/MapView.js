@@ -13,7 +13,8 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			_.bindAll(this, 'render', 'unrender', 'clean', 'getInfo', 'setZoom', 'toggleLayer',
 					'drawGeoJSON', 'drawHeatmap', 'drawTrip', 'drawSectionList', 
 					'initODAnalysisClick', 'drawTrajectories', 'drawStartPoint', 'drawEndPoint',
-					'drawODPoint', 'drawGPSPoint', 'drawCurAtr', 'drawRecAtr', 'removeElements', 'putLayerFront');
+					'drawODPoint', 'drawGPSPoint', 'drawCurAtr', 'drawRecAtr', 'removeElements', 'putLayerFront',
+					'drawClusters');
 			
 			/*
 			 * initial status settings
@@ -148,6 +149,9 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			Backbone.
 				off('MapView:putLayerFront').
 				on('MapView:putLayerFront', this.putLayerFront, this);
+			Backbone.
+				off('MapView:drawClusters').
+				on('MapView:drawClusters', this.drawClusters, this);
 			
 			this.render();
 		},
@@ -657,6 +661,72 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 		
 		putLayerFront: function(id) {
 			this._layersContainer[id] && this._layersContainer[id].bringToFront();
+		},
+		
+		drawClusters: function(param) {
+			var self = this;
+			
+			var data = param.geojson;
+			var options = param.options;
+			
+			var _highlightStyle = {
+					fillColor : 'red',
+					fillOpacity : 0.8,
+					pointRadius : 5
+			};
+			var _normalStyle = {
+					fillColor : 'yellow',
+					stroke : true,
+					color : 'black',
+					weight: 2, fill: true,
+					strokeWidth : 1,
+					fillOpacity : 0.9,
+					radius: 4
+	        };
+			
+			//interactive function
+			var clickFunc = function(e) { //remove from map
+				var targetLayer = e.target;
+				var popupHtml = '';
+		    	_.each(targetLayer.feature.geometry.properties, function(value, key) {
+		    		popupHtml += key + ' : ' + value + '<br/>';
+		    	});
+		    	popupHtml != '' && targetLayer.bindPopup(popupHtml);
+			};
+			
+			var highlightFeatureFunc = function(e) {
+				console.log(e);
+				var highlightLayer = e.target;
+
+				highlightLayer.setStyle(_highlightStyle);
+
+				if (!L.Browser.ie && !L.Browser.opera) {
+					highlightLayer.bringToFront();
+				}
+			};
+			
+			//draw geojson
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return _normalStyle;
+				    },
+				    onEachFeature: function (feature, layer) {
+				    	layer.on({
+				    		click: clickFunc,
+				            mouseover: highlightFeatureFunc,
+				            mouseout: function(e) {
+				            	mapLayer.resetStyle(e.target);
+				            }
+				        });
+				    },
+				    pointToLayer: function (feature, latlng) {
+				    	return self._drawPointLayer(latlng, _normalStyle);
+					}
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
+			});
 		}
 		
 	});
