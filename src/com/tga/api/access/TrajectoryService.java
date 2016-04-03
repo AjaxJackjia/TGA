@@ -75,4 +75,42 @@ public class TrajectoryService extends BaseService {
 		return buildResponse(OK, result);
 	}
 	
+	@GET
+	@Path("/motivation")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getMotivation(
+			@QueryParam("o_lng") double p_o_lng,
+			@QueryParam("o_lat") double p_o_lat, 
+			@QueryParam("d_lng") double p_d_lng,
+			@QueryParam("d_lat") double p_d_lat,
+			@QueryParam("path") String p_path ) throws JSONException, SQLException, JsonProcessingException 
+	{
+		String[] ids_str = p_path.split(",");
+		JSONObject result = new JSONObject();
+		ObjectMapper mapper = new ObjectMapper();
+		
+		//od
+		JSONObject o = new JSONObject();
+		o.put("lng", p_o_lng);
+		o.put("lat", p_o_lat);
+		JSONObject d = new JSONObject();
+		d.put("lng", p_d_lng);
+		d.put("lat", p_d_lat);
+		
+		//path
+		FeatureCollection path = new FeatureCollection();
+		for(String id : ids_str) {
+			Feature feature = new Feature();
+			GeoJsonObject section = GISElements.getSection(Long.parseLong(id));
+			feature.setGeometry(section);
+			
+			path.add(feature);
+		}
+		
+		result.put("o", o);
+		result.put("d", d);
+		result.put("path", mapper.writeValueAsString(path));
+		
+		return buildResponse(OK, result);
+	}
 }

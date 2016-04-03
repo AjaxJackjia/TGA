@@ -14,7 +14,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 					'drawGeoJSON', 'drawHeatmap', 'drawTrip', 'drawSectionList', 
 					'initODAnalysisClick', 'drawTrajectories', 'drawStartPoint', 'drawEndPoint',
 					'drawODPoint', 'drawGPSPoint', 'drawCurAtr', 'drawRecAtr', 'removeElements', 'putLayerFront',
-					'drawClusters');
+					'drawClusters', 'drawMotivation', 'drawSampleGPSPoint', 'drawSampleAssignedSection', 'drawSampleAugmentedSection');
 			
 			/*
 			 * initial status settings
@@ -152,6 +152,18 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			Backbone.
 				off('MapView:drawClusters').
 				on('MapView:drawClusters', this.drawClusters, this);
+			Backbone.
+				off('MapView:drawMotivation').
+				on('MapView:drawMotivation', this.drawMotivation, this);
+			Backbone.
+				off('MapView:drawSampleGPSPoint').
+				on('MapView:drawSampleGPSPoint', this.drawSampleGPSPoint, this);
+			Backbone.
+				off('MapView:drawSampleAssignedSection').
+				on('MapView:drawSampleAssignedSection', this.drawSampleAssignedSection, this);
+			Backbone.
+				off('MapView:drawSampleAugmentedSection').
+				on('MapView:drawSampleAugmentedSection', this.drawSampleAugmentedSection, this);
 			
 			this.render();
 		},
@@ -303,7 +315,7 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			    	if(feature.geometry.type == 'Point') {
 			    		return self._drawPointLayer(latlng, self._trip_gps_setting);
 			    	}else if(feature.geometry.type == 'LineString') {
-			    		return self._drawPointLayer(latlng, self._trip_segment_setting);
+			    		return self._drawLineLayer(latlng, self._trip_segment_setting);
 			    	}
 				}
 			}).addTo(this.map);
@@ -727,8 +739,108 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				
 				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
 			});
-		}
+		},
 		
+		drawMotivation: function(param) {
+			var self = this;
+			
+			//draw path
+			this._drawTripFeature($.parseJSON(param.path), {
+				color: 'blue',
+				opacity: 0.7
+			});
+			
+			//draw start and end point
+			this.drawStartPoint(param.o);
+			this.drawEndPoint(param.d);
+		},
+		
+		drawSampleGPSPoint: function(param) {
+			var self = this;
+			
+			var data = param.geojson;
+			var options = param.options;
+			
+			var _highlightStyle = {
+					fillOpacity : 0.8,
+					pointRadius : 5
+			};
+			var _normalStyle = {
+					fillColor : 'yellow',
+					stroke : true,
+					color : 'black',
+					weight: 2, fill: true,
+					strokeWidth : 1,
+					fillOpacity : 0.9,
+					radius: 4
+	        };
+			
+			//draw geojson
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return _normalStyle;
+				    },
+				    onEachFeature: function (feature, layer) {
+				    	
+				    },
+				    pointToLayer: function (feature, latlng) {
+				    	return self._drawPointLayer(latlng, _normalStyle);
+					}
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
+			});
+		},
+		
+		drawSampleAssignedSection: function(param) {
+			var normalStyle = {
+				fillOpacity : 0.8,
+				stroke: true,
+				opacity: 0.8,
+				color: 'blue',
+				weight: 4
+			};
+			this._drawSampleSection(param, normalStyle);
+		},
+		
+		drawSampleAugmentedSection: function(param) {
+			var normalStyle = {
+				fillOpacity : 0.8,
+				stroke: true,
+				opacity: 0.8,
+				color: 'red',
+				weight: 4
+			};
+			this._drawSampleSection(param, normalStyle);
+		},
+		
+		_drawSampleSection: function(param, normalStyle) {
+			var self = this;
+			
+			var data = param;
+			var _atr_normalStyle = normalStyle;
+			
+			var _atr_highlightStyle = {
+				weight: 7
+			};
+			
+			//draw geojson
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return _atr_normalStyle;
+				    },
+				    onEachFeature: function (feature, layer) {
+				    },
+				    pointToLayer: function (feature, latlng) {
+				    	return self._drawLineLayer(latlng, _atr_highlightStyle);
+					}
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
+			});
+		}
 	});
 	
 	return MapView;

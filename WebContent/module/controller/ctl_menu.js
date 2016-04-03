@@ -130,6 +130,19 @@ define([ 'backbone',
 			tileContent: "icon",
 			iconName: "mif-feed"
 		}));
+		ToolCollection.push(new TileModel({
+			//module
+			module: 'tools-motivation',
+			//tile classes
+			tileSize: "tile-small", 
+			bgColor: "bg-darkRed",     
+			fgColor: "fg-white", 
+
+			//tile content
+			tileLabel: "动机",
+			tileContent: "icon",
+			iconName: "mif-compass"
+		}));
 		ToolGroup.setTiles(ToolCollection);
 		
 		//application group
