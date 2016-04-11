@@ -15,8 +15,10 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.geojson.FeatureCollection;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tga.api.algorithm.Hotline;
 import com.tga.api.algorithm.OnlineDetection;
 import com.tga.api.base.BaseService;
@@ -98,6 +100,56 @@ public class AppService extends BaseService {
 		Hotline hotline = new Hotline(p_epsilon, p_epsilon_cluster, p_minPts);
 		JSONObject result = hotline.opticsClustering(p_center_lng, p_center_lat, p_scale_a, p_scale_b);
 //		JSONObject result = hotline.DBSCANClustering(p_center_lng, p_center_lat, p_scale_a, p_scale_b);
+		
+		return buildResponse(OK, result);
+	}
+	
+	@GET
+	@Path("/hotline/cluster_square")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHotlineClusterSquareCalculation(
+			@QueryParam("center_lng") double p_center_lng,
+			@QueryParam("center_lat") double p_center_lat,
+			@QueryParam("scale_a") int p_scale_a,
+			@QueryParam("scale_b") int p_scale_b,
+			@QueryParam("type") String p_type,
+			@QueryParam("limit") int p_limit ) throws JSONException, SQLException, JsonProcessingException 
+	{
+		
+		JSONObject result = new JSONObject();
+		FeatureCollection featureCollection = null;
+		if(p_type.equals("D")) {
+			featureCollection = Hotline.getSquare_Ds(p_center_lng, p_center_lat, p_scale_a, p_scale_b, p_limit);
+		}else{
+			featureCollection = Hotline.getSquare_Os(p_center_lng, p_center_lat, p_scale_a, p_scale_b, p_limit);
+		}
+		
+		ObjectMapper mapper = new ObjectMapper();
+		result.put("cluster", mapper.writeValueAsString(featureCollection));
+		
+		return buildResponse(OK, result);
+	}
+	
+	@GET
+	@Path("/hotline/cluster_circle")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getHotlineClusterCircleCalculation(
+			@QueryParam("center_lng") double p_center_lng,
+			@QueryParam("center_lat") double p_center_lat,
+			@QueryParam("radius") int p_radius,
+			@QueryParam("type") String p_type,
+			@QueryParam("limit") int p_limit ) throws JSONException, SQLException, JsonProcessingException 
+	{
+		JSONObject result = new JSONObject();
+		FeatureCollection featureCollection = null;
+		if(p_type.equals("D")) {
+			featureCollection = Hotline.getCircle_Ds(p_center_lng, p_center_lat, p_radius, p_limit);
+		}else{
+			featureCollection = Hotline.getCircle_Os(p_center_lng, p_center_lat, p_radius, p_limit);
+		}
+		
+		ObjectMapper mapper = new ObjectMapper();
+		result.put("cluster", mapper.writeValueAsString(featureCollection));
 		
 		return buildResponse(OK, result);
 	}

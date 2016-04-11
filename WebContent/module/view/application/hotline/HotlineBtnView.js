@@ -55,13 +55,15 @@ define([ 'backbone', 'metro', 'util',
 		className: 'hotline-view',
 		
 		events: {
-			'click .generate': 'generate',
+			//'click .generate': 'generate',
+			//'click .generate': 'generateFirstPicClusters',
+			'click .generate': 'generateSecondPicClusters',
 			'click .clean': 'clean'
 		},
 		
 		initialize: function(){
 			//ensure correct scope
-			_.bindAll(this, 'render', 'unrender', 'toggle', 'generate', 'clean');
+			_.bindAll(this, 'render', 'unrender', 'toggle', 'generate', 'clean', 'generateFirstPicClusters', 'generateSecondPicClusters');
 			
 			//initial status
 			this.inputView = new InputView();
@@ -112,6 +114,144 @@ define([ 'backbone', 'metro', 'util',
 				//draw charts
 				var reachabilityDis = data.reachabilityDis;
 				self._drawChart(reachabilityDis);
+			});
+		},
+		
+		generateFirstPicClusters: function() {
+			//From: 坂田中心
+			var bantian_param = {
+				center_lng: 114.05511260032652,
+				center_lat: 22.629400770949264,
+				type: 'O',
+				limit: 10000,
+				color: 'red'
+			};
+			this._getSquareCluster(bantian_param);
+			Backbone.trigger('MapView:drawTrafficZone', {
+				lng: bantian_param.center_lng,
+				lat: bantian_param.center_lat
+			});
+			
+			//Domain 1: 民乐地铁站
+			var minyue_param = {
+				center_lng: 114.04383659362793,
+				center_lat: 22.5993324189035,
+				type: 'D',
+				limit: 100,
+				color: 'orange' 
+			};
+			this._getCircleCluster(minyue_param);
+			
+			//Domain 2: 深圳北站
+			var shenzhenbei_param = {
+				center_lng: 114.0294599533081,
+				center_lat: 22.612644120749582,
+				type: 'D',
+				limit: 100,
+				color: '#DF01A5' 
+			};
+			this._getCircleCluster(shenzhenbei_param);
+			
+			//Domain 3: 北京大学深圳医院
+			var peking_param = {
+				center_lng: 114.04422283172607,
+				center_lat: 22.55756652694934,
+				type: 'D',
+				limit: 15,
+				color: 'yellow' 
+			};
+			this._getCircleCluster(peking_param);
+					
+			//Domain 4: 深圳东站
+			var szdong_param = {
+				center_lng: 114.11288738250732,
+				center_lat: 22.60575072162999,
+				type: 'D',
+				limit: 10,
+				color: '#53FF53' 
+			};
+			this._getCircleCluster(szdong_param);
+			
+			//Domain 5: 华强北
+			var huaqiang_param = {
+				center_lng: 114.08121585845947,
+				center_lat: 22.547162711675465,
+				type: 'D',
+				limit: 10,
+				color: '#00A600' 
+			};
+			this._getCircleCluster(huaqiang_param);
+		},
+		
+		generateSecondPicClusters: function() {
+			//From: 民乐地铁站
+			var minyue_param = {
+				center_lng: 114.04383659362793,
+				center_lat: 22.5993324189035,
+				type: 'O',
+				limit: 100,
+				color: 'orange' 
+			};
+			this._getCircleCluster(minyue_param);
+			Backbone.trigger('MapView:drawTrafficZone', {
+				lng: minyue_param.center_lng,
+				lat: minyue_param.center_lat
+			});
+			
+			//To: 坂田中心
+			var bantian_param = {
+				center_lng: 114.05511260032652,
+				center_lat: 22.629400770949264,
+				type: 'D',
+				limit: 70,
+				color: 'red'
+			};
+			this._getSquareCluster(bantian_param);
+			Backbone.trigger('MapView:drawTrafficZone', {
+				lng: bantian_param.center_lng,
+				lat: bantian_param.center_lat
+			});
+		},
+		
+		_getSquareCluster: function(options) {
+			var scale_a = 375, scale_b = 375;
+			
+			var param = {};
+			param.center_lng = options.center_lng;
+			param.center_lat = options.center_lat;
+			param.scale_a = scale_a;
+			param.scale_b = scale_b;
+			param.type = options.type;
+			param.limit = options.limit;
+			
+			$.get('api/app/hotline/cluster_square', param, function(data){
+				var clustersParam = {};
+				clustersParam.geojson = $.parseJSON(data.cluster);
+				clustersParam.options = {
+					color: options.color
+				};
+				Backbone.trigger('MapView:drawSingleCluster', clustersParam);
+			});
+		},
+		
+		_getCircleCluster: function(options) {
+			var radius = 400;
+			
+			var param = {};
+			param.center_lng = options.center_lng;
+			param.center_lat = options.center_lat;
+			param.radius = radius;
+			param.type = options.type;
+			param.limit = options.limit;
+			
+			$.get('api/app/hotline/cluster_circle', param, function(data){
+				//draw clusters
+				var clustersParam = {};
+				clustersParam.geojson = $.parseJSON(data.cluster);
+				clustersParam.options = {
+					color: options.color
+				};
+				Backbone.trigger('MapView:drawSingleCluster', clustersParam);
 			});
 		},
 		

@@ -17,6 +17,7 @@ import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
 import org.geojson.LngLatAlt;
 import org.geojson.MultiPoint;
+import org.geojson.Point;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,6 +77,123 @@ public class Hotline {
 		result = generateDBSCANResult(clusterNum);
 		
 		return result;
+	}
+	
+	//获取区域OD点
+	public static FeatureCollection getSquare_Os(double center_lng, double center_lat, int scale_a, int scale_b, int limit) throws SQLException {
+		FeatureCollection featureCollection = new FeatureCollection();
+		
+		double min_lng = center_lng - meter2LngDegree(center_lat, scale_a);
+		double max_lng = center_lng + meter2LngDegree(center_lat, scale_a);
+		double min_lat = center_lat - meter2LatDegree(scale_b);
+		double max_lat = center_lat + meter2LatDegree(scale_b);
+		
+		String sql = "select " + 
+					 "	ST_X(o_point) as lng, " +
+					 "	ST_Y(o_point) as lat " +
+					 "from " + 
+					 "	taxi.trips_od " +
+					 "where " + 
+					 "	ST_X(o_point) <= ? and " + 
+					 "	ST_X(o_point) >= ? and " + 
+					 "	ST_Y(o_point) <= ? and " + 
+					 "	ST_Y(o_point) >= ? " + 
+					 "limit ? ";
+		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement(sql, max_lng, min_lng, max_lat, min_lat, limit);
+		stmt.getConnection().setAutoCommit(false);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			Feature feature = new Feature();
+			Point point = new Point(rs.getDouble("lng"), rs.getDouble("lat"));
+			feature.setGeometry(point);
+			featureCollection.add(feature);
+		}
+		DBUtil.getInstance().closeStatementResource(stmt);
+		
+		return featureCollection;
+	}
+	
+	public static FeatureCollection getSquare_Ds(double center_lng, double center_lat, int scale_a, int scale_b, int limit) throws SQLException {
+		FeatureCollection featureCollection = new FeatureCollection();
+		
+		double min_lng = center_lng - meter2LngDegree(center_lat, scale_a);
+		double max_lng = center_lng + meter2LngDegree(center_lat, scale_a);
+		double min_lat = center_lat - meter2LatDegree(scale_b);
+		double max_lat = center_lat + meter2LatDegree(scale_b);
+		
+		String sql = "select " + 
+					 "	ST_X(d_point) as lng, " +
+					 "	ST_Y(d_point) as lat " +
+					 "from " + 
+					 "	taxi.trips_od " +
+					 "where " + 
+					 "	ST_X(d_point) <= ? and " + 
+					 "	ST_X(d_point) >= ? and " + 
+					 "	ST_Y(d_point) <= ? and " + 
+					 "	ST_Y(d_point) >= ? " + 
+					 "limit ? ";
+		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement(sql, max_lng, min_lng, max_lat, min_lat, limit);
+		stmt.getConnection().setAutoCommit(false);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			Feature feature = new Feature();
+			Point point = new Point(rs.getDouble("lng"), rs.getDouble("lat"));
+			feature.setGeometry(point);
+			featureCollection.add(feature);
+		}
+		DBUtil.getInstance().closeStatementResource(stmt);
+		
+		return featureCollection;
+	}
+	
+	public static FeatureCollection getCircle_Os(double center_lng, double center_lat, int radius, int limit) throws SQLException {
+		FeatureCollection featureCollection = new FeatureCollection();
+		
+		String sql = "select " + 
+					 "	ST_X(o_point) as lng, " +
+					 "	ST_Y(o_point) as lat " +
+					 "from " + 
+					 "	taxi.trips_od " +
+					 "where " + 
+					 "	st_distance_sphere(st_point(?, ?), o_point) < ?  " + 
+					 "limit ? ";
+		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement(sql, center_lng, center_lat, radius, limit);
+		stmt.getConnection().setAutoCommit(false);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			Feature feature = new Feature();
+			Point point = new Point(rs.getDouble("lng"), rs.getDouble("lat"));
+			feature.setGeometry(point);
+			featureCollection.add(feature);
+		}
+		DBUtil.getInstance().closeStatementResource(stmt);
+		
+		return featureCollection;
+	}
+	
+	public static FeatureCollection getCircle_Ds(double center_lng, double center_lat, int radius, int limit) throws SQLException {
+		FeatureCollection featureCollection = new FeatureCollection();
+		
+		String sql = "select " + 
+					 "	ST_X(d_point) as lng, " +
+					 "	ST_Y(d_point) as lat " +
+					 "from " + 
+					 "	taxi.trips_od " +
+					 "where " + 
+					 "	st_distance_sphere(st_point(?, ?), d_point) < ?  " + 
+					 "limit ? ";
+		PreparedStatement stmt = DBUtil.getInstance().createSqlStatement(sql, center_lng, center_lat, radius, limit);
+		stmt.getConnection().setAutoCommit(false);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			Feature feature = new Feature();
+			Point point = new Point(rs.getDouble("lng"), rs.getDouble("lat"));
+			feature.setGeometry(point);
+			featureCollection.add(feature);
+		}
+		DBUtil.getInstance().closeStatementResource(stmt);
+		
+		return featureCollection;
 	}
 	
 	///////////////////////////////////////

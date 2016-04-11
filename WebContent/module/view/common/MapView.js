@@ -14,7 +14,8 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 					'drawGeoJSON', 'drawHeatmap', 'drawTrip', 'drawSectionList', 
 					'initODAnalysisClick', 'drawTrajectories', 'drawStartPoint', 'drawEndPoint',
 					'drawODPoint', 'drawGPSPoint', 'drawCurAtr', 'drawRecAtr', 'removeElements', 'putLayerFront',
-					'drawClusters', 'drawMotivation', 'drawSampleGPSPoint', 'drawSampleAssignedSection', 'drawSampleAugmentedSection');
+					'drawClusters', 'drawMotivation', 'drawSampleGPSPoint', 'drawSampleAssignedSection', 'drawSampleAugmentedSection',
+					'drawSingleCluster', 'drawTrafficZone');
 			
 			/*
 			 * initial status settings
@@ -164,6 +165,12 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 			Backbone.
 				off('MapView:drawSampleAugmentedSection').
 				on('MapView:drawSampleAugmentedSection', this.drawSampleAugmentedSection, this);
+			Backbone.
+				off('MapView:drawSingleCluster').
+				on('MapView:drawSingleCluster', this.drawSingleCluster, this);
+			Backbone.
+				off('MapView:drawTrafficZone').
+				on('MapView:drawTrafficZone', this.drawTrafficZone, this);
 			
 			this.render();
 		},
@@ -840,6 +847,93 @@ define([ 'backbone', 'leaflet', 'leaflet-heatmap' ], function(Backbone, L, Heatm
 				
 				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
 			});
+		},
+		
+		drawSingleCluster: function(param) {
+			var self = this;
+			
+			var data = param.geojson;
+			var options = param.options;
+			
+			var _highlightStyle = {
+					fillOpacity : 0.8,
+					pointRadius : 5
+			};
+			var _normalStyle = {
+					fillColor : options.color,
+					stroke : true,
+					color : 'black',
+					weight: 2, fill: true,
+					strokeWidth : 1,
+					fillOpacity : 0.9,
+					radius: 4
+	        };
+			
+			//draw geojson
+			_.each(data.features, function(feature, index) {
+				var mapLayer = L.geoJson(feature, {
+				    style: function (feature) {
+				        return _normalStyle;
+				    },
+				    onEachFeature: function (feature, layer) {
+				    	
+				    },
+				    pointToLayer: function (feature, latlng) {
+				    	return self._drawPointLayer(latlng, _normalStyle);
+					}
+				}).addTo(self.map);
+				
+				self._layersContainer[mapLayer._leaflet_id] = mapLayer;
+			});
+		},
+		
+		drawTrafficZone: function(point) {
+			var lng_gap = 0.00418011038691979;
+			var lat_gap = 0.0033572068039391225;
+			var min_lng = point.lng - lng_gap;
+			var max_lng = point.lng + lng_gap;
+			var min_lat = point.lat - lat_gap;
+			var max_lat = point.lat + lat_gap;
+			
+//			var latlngs = [
+//			    L.latLng(min_lng, min_lat),
+//			    L.latLng(max_lng, min_lat),
+//			    L.latLng(max_lng, max_lat),
+//			    L.latLng(min_lng, max_lat)
+//			];
+			
+			var options = {
+				fillColor: "#825a2c",
+				color: "#825a2c",
+				opacity: 1,
+				fillOpacity: 0.8
+			};
+			var geojson = {
+				"type": "FeatureCollection",
+				"features":[{
+					"type": "Feature",
+					"geometry": {
+						"type": "MultiLineString",
+						"coordinates": [
+							[ [min_lng, min_lat], [max_lng, min_lat] ],
+							[ [max_lng, min_lat], [max_lng, max_lat] ],
+							[ [max_lng, max_lat], [min_lng, max_lat] ],
+							[ [min_lng, max_lat], [min_lng, min_lat] ]
+						]
+					}
+				}]
+			};
+			
+			var polyline = L.geoJson(geojson, {
+			    style: function (feature) {
+			        return options;
+			    },
+			    onEachFeature: function (feature, layer) {
+			    },
+			    pointToLayer: function (feature, latlng) {
+			    	return self._drawLineLayer(latlng, options);
+				}
+			}).addTo(this.map);
 		}
 	});
 	
